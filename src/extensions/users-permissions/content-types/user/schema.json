@@ -1,0 +1,61 @@
+{
+    "kind": "collectionType",
+    "collectionName": "users",
+    "info": {
+      "singularName": "user",  
+      "pluralName": "users",
+      "displayName": "User",
+      "description": ""
+    },
+    "options": {
+      "increments": true,
+      "timestamps": true
+    },
+    "attributes": {
+      "username": {
+        "type": "string",
+        "minLength": 3,
+        "configurable": false
+      },
+      "email": {
+        "type": "email",
+        "configurable": false
+      },
+      "provider": {
+        "type": "string",
+        "configurable": false
+      },
+      "password": {
+        "type": "password",
+        "configurable": false
+      },
+      "firstName": {
+        "type": "string",
+        "required": true
+      },
+      "lastName": {
+        "type": "string",
+        "required": true
+      },
+      "dateOfBirth": {
+        "type": "date",
+        "required": true
+      },
+      "phone": {
+        "type": "string",
+        "required": true
+      },
+      "confirmed": {
+        "type": "boolean",
+        "default": false,
+        "required": true
+      },
+      "role": {
+        "type": "relation",
+        "relation": "manyToOne",
+        "target": "plugin::users-permissions.role",
+        "configurable": false
+      }
+    }
+  }
+  

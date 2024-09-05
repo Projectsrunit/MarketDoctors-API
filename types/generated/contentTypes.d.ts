@@ -732,40 +732,32 @@ export interface PluginUsersPermissionsRole extends Schema.CollectionType {
 }
 
 export interface PluginUsersPermissionsUser extends Schema.CollectionType {
-  collectionName: 'up_users';
+  collectionName: 'users';
   info: {
-    name: 'user';
-    description: '';
     singularName: 'user';
     pluralName: 'users';
     displayName: 'User';
+    description: '';
   };
   options: {
-    draftAndPublish: false;
+    increments: true;
     timestamps: true;
   };
   attributes: {
     username: Attribute.String &
-      Attribute.Required &
-      Attribute.Unique &
       Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
-    email: Attribute.Email &
-      Attribute.Required &
-      Attribute.SetMinMaxLength<{
-        minLength: 6;
-      }>;
+    email: Attribute.Email;
     provider: Attribute.String;
-    password: Attribute.Password &
-      Attribute.Private &
-      Attribute.SetMinMaxLength<{
-        minLength: 6;
-      }>;
-    resetPasswordToken: Attribute.String & Attribute.Private;
-    confirmationToken: Attribute.String & Attribute.Private;
-    confirmed: Attribute.Boolean & Attribute.DefaultTo<false>;
-    blocked: Attribute.Boolean & Attribute.DefaultTo<false>;
+    password: Attribute.Password;
+    firstName: Attribute.String & Attribute.Required;
+    lastName: Attribute.String & Attribute.Required;
+    dateOfBirth: Attribute.Date & Attribute.Required;
+    phone: Attribute.String & Attribute.Required;
+    confirmed: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
     role: Attribute.Relation<
       'plugin::users-permissions.user',
       'manyToOne',
