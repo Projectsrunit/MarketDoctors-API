@@ -1,61 +1,77 @@
 {
-    "kind": "collectionType",
-    "collectionName": "users",
-    "info": {
-      "singularName": "user",  
-      "pluralName": "users",
-      "displayName": "User",
-      "description": ""
+  "kind": "collectionType",
+  "collectionName": "users",
+  "info": {
+    "singularName": "user",
+    "pluralName": "users",
+    "displayName": "User",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "attributes": {
+    "username": {
+      "type": "string",
+      "minLength": 3,
+      "configurable": false
     },
-    "options": {
-      "increments": true,
-      "timestamps": true
+    "email": {
+      "type": "email",
+      "configurable": false
     },
-    "attributes": {
-      "username": {
-        "type": "string",
-        "minLength": 3,
-        "configurable": false
-      },
-      "email": {
-        "type": "email",
-        "configurable": false
-      },
-      "provider": {
-        "type": "string",
-        "configurable": false
-      },
-      "password": {
-        "type": "password",
-        "configurable": false
-      },
-      "firstName": {
-        "type": "string",
-        "required": true
-      },
-      "lastName": {
-        "type": "string",
-        "required": true
-      },
-      "dateOfBirth": {
-        "type": "date",
-        "required": true
-      },
-      "phone": {
-        "type": "string",
-        "required": true
-      },
-      "confirmed": {
-        "type": "boolean",
-        "default": false,
-        "required": true
-      },
-      "role": {
-        "type": "relation",
-        "relation": "manyToOne",
-        "target": "plugin::users-permissions.role",
-        "configurable": false
-      }
+    "provider": {
+      "type": "string",
+      "configurable": false
+    },
+    "password": {
+      "type": "password",
+      "configurable": false
+    },
+    "role": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.role",
+      "configurable": false
+    },
+    "firstName": {
+      "type": "string",
+      "required": true
+    },
+    "lastName": {
+      "type": "string",
+      "required": true
+    },
+    "dateOfBirth": {
+      "type": "date",
+      "required": true
+    },
+    "phone": {
+      "type": "string",
+      "required": true
+    },
+    "confirmed": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "years_of_experience": {
+      "type": "integer"
+    },
+    "facility": {
+      "type": "string"
+    },
+    "specialisation": {
+      "type": "string"
+    },
+    "availability": {
+      "type": "json"
+    },
+    "languages": {
+      "type": "json"
+    },
+    "awards": {
+      "type": "json"
     }
   }
-  
+}

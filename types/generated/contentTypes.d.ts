@@ -740,8 +740,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     description: '';
   };
   options: {
-    increments: true;
-    timestamps: true;
+    draftAndPublish: false;
   };
   attributes: {
     username: Attribute.String &
@@ -751,6 +750,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     email: Attribute.Email;
     provider: Attribute.String;
     password: Attribute.Password;
+    role: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToOne',
+      'plugin::users-permissions.role'
+    >;
     firstName: Attribute.String & Attribute.Required;
     lastName: Attribute.String & Attribute.Required;
     dateOfBirth: Attribute.Date & Attribute.Required;
@@ -758,11 +762,12 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     confirmed: Attribute.Boolean &
       Attribute.Required &
       Attribute.DefaultTo<false>;
-    role: Attribute.Relation<
-      'plugin::users-permissions.user',
-      'manyToOne',
-      'plugin::users-permissions.role'
-    >;
+    years_of_experience: Attribute.Integer;
+    facility: Attribute.String;
+    specialisation: Attribute.String;
+    availability: Attribute.JSON;
+    languages: Attribute.JSON;
+    awards: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
