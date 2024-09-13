@@ -1,0 +1,64 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cases",
+  "info": {
+    "singularName": "case",
+    "pluralName": "cases",
+    "displayName": "Case",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "phone_number": {
+      "type": "string"
+    },
+    "medical_details": {
+      "type": "json"
+    },
+    "existing_condition": {
+      "type": "string"
+    },
+    "currently_prescriptions": {
+      "type": "json"
+    },
+    "chews_note": {
+      "type": "text"
+    },
+    "chew": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "cases"
+    },
+    "bank_details": {
+      "type": "json"
+    },
+    "qualification_url": {
+      "type": "string"
+    },
+    "date_of_birth": {
+      "type": "date"
+    },
+    "gender": {
+      "type": "string"
+    },
+    "home_address": {
+      "type": "string"
+    },
+    "nearest_bus_stop": {
+      "type": "string"
+    }
+  }
+}

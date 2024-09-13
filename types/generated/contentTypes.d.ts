@@ -362,6 +362,90 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
+export interface ApiAppointmentAppointment extends Schema.CollectionType {
+  collectionName: 'appointments';
+  info: {
+    singularName: 'appointment';
+    pluralName: 'appointments';
+    displayName: 'Appointment';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    appointment_date: Attribute.Date;
+    appointment_time: Attribute.Time;
+    complaint: Attribute.Text;
+    receipt_url: Attribute.String;
+    doctor: Attribute.Relation<
+      'api::appointment.appointment',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    patient: Attribute.Relation<
+      'api::appointment.appointment',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::appointment.appointment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::appointment.appointment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiCaseCase extends Schema.CollectionType {
+  collectionName: 'cases';
+  info: {
+    singularName: 'case';
+    pluralName: 'cases';
+    displayName: 'Case';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    first_name: Attribute.String;
+    last_name: Attribute.String;
+    email: Attribute.Email;
+    phone_number: Attribute.String;
+    medical_details: Attribute.JSON;
+    existing_condition: Attribute.String;
+    currently_prescriptions: Attribute.JSON;
+    chews_note: Attribute.Text;
+    chew: Attribute.Relation<
+      'api::case.case',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    bank_details: Attribute.JSON;
+    qualification_url: Attribute.String;
+    date_of_birth: Attribute.Date;
+    gender: Attribute.String;
+    home_address: Attribute.String;
+    nearest_bus_stop: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::case.case', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::case.case', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -768,6 +852,21 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     availability: Attribute.JSON;
     languages: Attribute.JSON;
     awards: Attribute.JSON;
+    cases: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::case.case'
+    >;
+    doctor_appoint: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::appointment.appointment'
+    >;
+    patient_appoint: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::appointment.appointment'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -795,6 +894,8 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
+      'api::appointment.appointment': ApiAppointmentAppointment;
+      'api::case.case': ApiCaseCase;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;
