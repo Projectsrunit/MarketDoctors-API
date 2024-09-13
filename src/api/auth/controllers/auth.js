@@ -5,10 +5,40 @@ const { ApplicationError, ValidationError } = require('@strapi/utils').errors;
 module.exports = {
   // Custom Registration Method
   async register(ctx) {
-    const { firstName, lastName, email, password, phone, dateOfBirth, role, confirmed } = ctx.request.body;
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      password, 
+      phone, 
+      dateOfBirth, 
+      role, 
+      confirmed, 
+      years_of_experience, 
+      facility, 
+      specialisation, 
+      availability, 
+      languages, 
+      awards 
+    } = ctx.request.body;
 
-    if (!firstName || !lastName || !email || !password || !phone || !dateOfBirth || !role ) {
-      throw new ValidationError('Please provide all required fields: firstName, lastName, email, password, phone, dateOfBirth, confirmed, and role');
+    // Validate required fields
+    if (
+      !firstName || 
+      !lastName || 
+      !email || 
+      !password || 
+      !phone || 
+      !dateOfBirth || 
+      !role ||
+      !years_of_experience || 
+      !facility || 
+      !specialisation || 
+      !availability || 
+      !languages || 
+      !awards 
+    ) {
+      throw new ValidationError('Please provide all required fields');
     }
 
     const existingUser = await strapi.query('plugin::users-permissions.user').findOne({ where: { email } });
@@ -17,11 +47,11 @@ module.exports = {
       throw new ApplicationError('Email is already in use');
     }
 
-        // Check if the phone number already exists
-        const existingUserByPhone = await strapi.query('plugin::users-permissions.user').findOne({ where: { phone } });
-        if (existingUserByPhone) {
-          throw new ApplicationError('Phone number already exists');
-        }
+    // Check if the phone number already exists
+    const existingUserByPhone = await strapi.query('plugin::users-permissions.user').findOne({ where: { phone } });
+    if (existingUserByPhone) {
+      throw new ApplicationError('Phone number already exists');
+    }
 
     // Check if the provided role ID exists
     const roleEntry = await strapi.query('plugin::users-permissions.role').findOne({ where: { id: role } });
@@ -39,7 +69,13 @@ module.exports = {
         phone,
         dateOfBirth,
         role: roleEntry.id, 
-        confirmed
+        confirmed,
+        years_of_experience,
+        facility,
+        specialisation,
+        availability, // Expecting this to be an object
+        languages, // Expecting this to be an array
+        awards // Expecting this to be an array of objects
       },
     });
 
@@ -51,8 +87,13 @@ module.exports = {
       email: newUser.email,
       dateOfBirth: newUser.dateOfBirth,
       phone: newUser.phone,
-      confirmed: false,
-      // Add role if it is a valid field
+      confirmed: newUser.confirmed,
+      years_of_experience: newUser.years_of_experience,
+      facility: newUser.facility,
+      specialisation: newUser.specialisation,
+      availability: newUser.availability,
+      languages: newUser.languages,
+      awards: newUser.awards
     };
 
     return ctx.send({
@@ -60,7 +101,7 @@ module.exports = {
     });
   },
 
-  // Custom Login Method
+  // Custom Login Method (unchanged)
   async login(ctx) {
     const { email, password, role } = ctx.request.body;
 
@@ -81,10 +122,10 @@ module.exports = {
       throw new ApplicationError('Invalid password');
     }
 
-     // Check if the role matches
-  if (user.role && user.role.id !== role) {
-    throw new ApplicationError('Role does not match');
-  }
+    // Check if the role matches
+    if (user.role && user.role.id !== role) {
+      throw new ApplicationError('Role does not match');
+    }
 
     // Generate a JWT token
     const token = strapi.service('plugin::users-permissions.jwt').issue({ id: user.id });
@@ -96,6 +137,7 @@ module.exports = {
       email: user.email,
       dateOfBirth: user.dateOfBirth,
       role: user.role,
+      confirmed:user.confirmed,
     };
 
     return ctx.send({
