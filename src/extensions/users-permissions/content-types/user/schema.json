@@ -90,6 +90,15 @@
       "relation": "oneToMany",
       "target": "api::appointment.appointment",
       "mappedBy": "patient"
+    },
+    "gender": {
+      "type": "string"
+    },
+    "home_address": {
+      "type": "string"
+    },
+    "nearest_bus_stop": {
+      "type": "string"
     }
   }
 }

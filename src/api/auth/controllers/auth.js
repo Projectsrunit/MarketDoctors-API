@@ -6,51 +6,28 @@ module.exports = {
   // Custom Registration Method
   async register(ctx) {
     const { 
-      firstName, 
-      lastName, 
-      email, 
-      password, 
-      phone, 
-      dateOfBirth, 
-      role, 
-      confirmed, 
-      years_of_experience, 
-      facility, 
-      specialisation, 
-      availability, 
-      languages, 
-      awards 
+      firstName, lastName, email, password, phone, dateOfBirth, role, confirmed,
+      years_of_experience, facility, specialisation, availability, languages, awards,
+      gender, home_address, nearest_bus_stop
     } = ctx.request.body;
 
     // Validate required fields
-    if (
-      !firstName || 
-      !lastName || 
-      !email || 
-      !password || 
-      !phone || 
-      !dateOfBirth || 
-      !role ||
-      !years_of_experience || 
-      !facility || 
-      !specialisation || 
-      !availability || 
-      !languages || 
-      !awards 
-    ) {
-      throw new ValidationError('Please provide all required fields');
+    if (!firstName || !lastName || !email || !password || !role) {
+      throw new ValidationError('Please provide all required fields: firstName, lastName, email, password, and role');
     }
 
+    // Check if email already exists
     const existingUser = await strapi.query('plugin::users-permissions.user').findOne({ where: { email } });
-
     if (existingUser) {
       throw new ApplicationError('Email is already in use');
     }
 
-    // Check if the phone number already exists
-    const existingUserByPhone = await strapi.query('plugin::users-permissions.user').findOne({ where: { phone } });
-    if (existingUserByPhone) {
-      throw new ApplicationError('Phone number already exists');
+    // Check if phone number already exists (if provided)
+    if (phone) {
+      const existingUserByPhone = await strapi.query('plugin::users-permissions.user').findOne({ where: { phone } });
+      if (existingUserByPhone) {
+        throw new ApplicationError('Phone number already exists');
+      }
     }
 
     // Check if the provided role ID exists
@@ -59,7 +36,7 @@ module.exports = {
       throw new ValidationError('Invalid role ID provided');
     }
 
-    // Create a new user with additional fields
+    // Create a new user with all fields, including optional ones
     const newUser = await strapi.entityService.create('plugin::users-permissions.user', {
       data: {
         firstName,
@@ -68,14 +45,17 @@ module.exports = {
         password,
         phone,
         dateOfBirth,
-        role: roleEntry.id, 
-        confirmed,
-        years_of_experience,
-        facility,
-        specialisation,
-        availability, // Expecting this to be an object
-        languages, // Expecting this to be an array
-        awards // Expecting this to be an array of objects
+        role: roleEntry.id,
+        confirmed: confirmed || false, 
+        years_of_experience: years_of_experience || null,
+        facility: facility || null,
+        specialisation: specialisation || null,
+        availability: availability || null,
+        languages: languages || null,
+        awards: awards || null,
+        gender: gender || null,
+        home_address: home_address || null,
+        nearest_bus_stop: nearest_bus_stop || null,
       },
     });
 
@@ -93,7 +73,10 @@ module.exports = {
       specialisation: newUser.specialisation,
       availability: newUser.availability,
       languages: newUser.languages,
-      awards: newUser.awards
+      awards: newUser.awards,
+      gender: newUser.gender,
+      home_address: newUser.home_address,
+      nearest_bus_stop: newUser.nearest_bus_stop,
     };
 
     return ctx.send({
@@ -122,7 +105,7 @@ module.exports = {
       throw new ApplicationError('Invalid password');
     }
 
-    // Check if the role matches
+     // Check if the role matches
     if (user.role && user.role.id !== role) {
       throw new ApplicationError('Role does not match');
     }
@@ -137,7 +120,6 @@ module.exports = {
       email: user.email,
       dateOfBirth: user.dateOfBirth,
       role: user.role,
-      confirmed:user.confirmed,
     };
 
     return ctx.send({

@@ -867,6 +867,9 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::appointment.appointment'
     >;
+    gender: Attribute.String;
+    home_address: Attribute.String;
+    nearest_bus_stop: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
