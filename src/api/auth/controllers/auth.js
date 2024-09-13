@@ -84,7 +84,7 @@ module.exports = {
     });
   },
 
-  // Custom Login Method (unchanged)
+  // Custom Login Method
   async login(ctx) {
     const { email, password, role } = ctx.request.body;
 
@@ -125,6 +125,61 @@ module.exports = {
     return ctx.send({
       jwt: token,
       user: sanitizedUser,
+    });
+  },
+
+  // Find All Users by Role
+  async findAllByRole(ctx) {
+    const { roleId } = ctx.query;
+
+    if (!roleId) {
+      throw new ValidationError('Please provide a roleId');
+    }
+
+    // Validate that roleId is a number
+    if (isNaN(Number(roleId))) {
+      throw new ValidationError('Invalid roleId provided');
+    }
+
+    // Find users with the specified role ID
+    const users = await strapi.query('plugin::users-permissions.user').findMany({
+      where: {
+        role: roleId,
+      },
+    });
+
+    return ctx.send({
+      users,
+    });
+  },
+
+  // Find One User by Role and ID
+  async findOneByRoleAndId(ctx) {
+    const { roleId, id } = ctx.query;
+
+    if (!roleId || !id) {
+      throw new ValidationError('Please provide both roleId and id');
+    }
+
+    // Validate that roleId and id are numbers
+    if (isNaN(Number(roleId)) || isNaN(Number(id))) {
+      throw new ValidationError('Invalid roleId or id provided');
+    }
+
+    // Find the user with the specified role ID and user ID
+    const user = await strapi.query('plugin::users-permissions.user').findOne({
+      where: {
+        id,
+        role: roleId,
+      },
+    });
+
+    if (!user) {
+      throw new ApplicationError('User not found');
+    }
+
+    return ctx.send({
+      user,
     });
   },
 };
