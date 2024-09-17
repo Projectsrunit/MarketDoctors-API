@@ -30,10 +30,10 @@
     "existing_condition": {
       "type": "string"
     },
-    "currently_prescriptions": {
+    "current_prescription": {
       "type": "json"
     },
-    "chews_note": {
+    "chews_notes": {
       "type": "text"
     },
     "chew": {
@@ -59,6 +59,21 @@
     },
     "nearest_bus_stop": {
       "type": "string"
+    },
+    "blood_pressure": {
+      "type": "decimal"
+    },
+    "bmi": {
+      "type": "decimal"
+    },
+    "blood_glucose": {
+      "type": "decimal"
+    },
+    "weight": {
+      "type": "decimal"
+    },
+    "height": {
+      "type": "decimal"
     }
   }
 }

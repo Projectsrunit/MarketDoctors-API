@@ -423,8 +423,8 @@ export interface ApiCaseCase extends Schema.CollectionType {
     phone_number: Attribute.String;
     medical_details: Attribute.JSON;
     existing_condition: Attribute.String;
-    currently_prescriptions: Attribute.JSON;
-    chews_note: Attribute.Text;
+    current_prescription: Attribute.JSON;
+    chews_notes: Attribute.Text;
     chew: Attribute.Relation<
       'api::case.case',
       'manyToOne',
@@ -436,6 +436,11 @@ export interface ApiCaseCase extends Schema.CollectionType {
     gender: Attribute.String;
     home_address: Attribute.String;
     nearest_bus_stop: Attribute.String;
+    blood_pressure: Attribute.Decimal;
+    bmi: Attribute.Decimal;
+    blood_glucose: Attribute.Decimal;
+    weight: Attribute.Decimal;
+    height: Attribute.Decimal;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
