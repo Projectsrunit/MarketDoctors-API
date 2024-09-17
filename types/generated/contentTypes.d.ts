@@ -870,6 +870,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     gender: Attribute.String;
     home_address: Attribute.String;
     nearest_bus_stop: Attribute.String;
+    picture_url: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
