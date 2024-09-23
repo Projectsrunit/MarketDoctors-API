@@ -876,6 +876,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     home_address: Attribute.String;
     nearest_bus_stop: Attribute.String;
     picture_url: Attribute.String;
+    profile_picture: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
