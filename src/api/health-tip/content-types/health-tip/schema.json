@@ -4,7 +4,8 @@
   "info": {
     "singularName": "health-tip",
     "pluralName": "health-tips",
-    "displayName": "Health_tip"
+    "displayName": "Health_tip",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -20,15 +21,8 @@
     "category": {
       "type": "string"
     },
-    "image": {
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ],
-      "type": "media",
-      "multiple": false
+    "feauture_image": {
+      "type": "string"
     }
   }
 }

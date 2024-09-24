@@ -100,17 +100,6 @@
     "picture_url": {
       "type": "string"
     },
-    "profile_picture": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
-    },
     "doctor_availabilities": {
       "type": "relation",
       "relation": "oneToMany",
@@ -119,6 +108,9 @@
     },
     "about": {
       "type": "text"
+    },
+    "profile_picture": {
+      "type": "string"
     }
   }
 }

@@ -786,13 +786,13 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     home_address: Attribute.String;
     nearest_bus_stop: Attribute.String;
     picture_url: Attribute.String;
-    profile_picture: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     doctor_availabilities: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',
       'api::availability.availability'
     >;
     about: Attribute.Text;
+    profile_picture: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -941,6 +941,7 @@ export interface ApiHealthTipHealthTip extends Schema.CollectionType {
     singularName: 'health-tip';
     pluralName: 'health-tips';
     displayName: 'Health_tip';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -949,7 +950,7 @@ export interface ApiHealthTipHealthTip extends Schema.CollectionType {
     title: Attribute.String;
     description: Attribute.Text;
     category: Attribute.String;
-    image: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    feauture_image: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
