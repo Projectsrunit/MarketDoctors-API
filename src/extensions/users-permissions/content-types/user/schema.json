@@ -116,6 +116,9 @@
       "relation": "oneToMany",
       "target": "api::availability.availability",
       "mappedBy": "users_permissions_user"
+    },
+    "about": {
+      "type": "text"
     }
   }
 }
