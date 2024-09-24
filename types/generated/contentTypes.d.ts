@@ -810,6 +810,37 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
+export interface ApiAdvertAdvert extends Schema.CollectionType {
+  collectionName: 'adverts';
+  info: {
+    singularName: 'advert';
+    pluralName: 'adverts';
+    displayName: 'Advert';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    text: Attribute.String;
+    image_url: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::advert.advert',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::advert.advert',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiAppointmentAppointment extends Schema.CollectionType {
   collectionName: 'appointments';
   info: {
@@ -987,6 +1018,7 @@ declare module '@strapi/types' {
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
+      'api::advert.advert': ApiAdvertAdvert;
       'api::appointment.appointment': ApiAppointmentAppointment;
       'api::availability.availability': ApiAvailabilityAvailability;
       'api::case.case': ApiCaseCase;

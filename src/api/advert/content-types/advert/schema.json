@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "adverts",
+  "info": {
+    "singularName": "advert",
+    "pluralName": "adverts",
+    "displayName": "Advert"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "text": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    }
+  }
+}
