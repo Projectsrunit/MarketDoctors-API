@@ -64,9 +64,6 @@
     "specialisation": {
       "type": "string"
     },
-    "availability": {
-      "type": "json"
-    },
     "languages": {
       "type": "json"
     },
@@ -104,14 +101,21 @@
       "type": "string"
     },
     "profile_picture": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
       "allowedTypes": [
         "images",
         "files",
         "videos",
         "audios"
-      ],
-      "type": "media",
-      "multiple": false
+      ]
+    },
+    "doctor_availabilities": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::availability.availability",
+      "mappedBy": "users_permissions_user"
     }
   }
 }

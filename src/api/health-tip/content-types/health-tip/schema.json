@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "health_tips",
+  "info": {
+    "singularName": "health-tip",
+    "pluralName": "health-tips",
+    "displayName": "Health_tip"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "category": {
+      "type": "string"
+    },
+    "image": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}
