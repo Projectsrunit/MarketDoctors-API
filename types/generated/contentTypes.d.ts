@@ -793,6 +793,17 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     about: Attribute.Text;
     profile_picture: Attribute.String;
+    transactionPin: Attribute.Password;
+    qualifications: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::qualification.qualification'
+    >;
+    payments: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::payment.payment'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1000,6 +1011,79 @@ export interface ApiHealthTipHealthTip extends Schema.CollectionType {
   };
 }
 
+export interface ApiPaymentPayment extends Schema.CollectionType {
+  collectionName: 'payments';
+  info: {
+    singularName: 'payment';
+    pluralName: 'payments';
+    displayName: 'payment';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    accountHolder: Attribute.String;
+    bankName: Attribute.String;
+    accountNumber: Attribute.String;
+    user: Attribute.Relation<
+      'api::payment.payment',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::payment.payment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::payment.payment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiQualificationQualification extends Schema.CollectionType {
+  collectionName: 'qualifications';
+  info: {
+    singularName: 'qualification';
+    pluralName: 'qualifications';
+    displayName: 'Qualification';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    file_url: Attribute.String;
+    user: Attribute.Relation<
+      'api::qualification.qualification',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::qualification.qualification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::qualification.qualification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1023,6 +1107,8 @@ declare module '@strapi/types' {
       'api::availability.availability': ApiAvailabilityAvailability;
       'api::case.case': ApiCaseCase;
       'api::health-tip.health-tip': ApiHealthTipHealthTip;
+      'api::payment.payment': ApiPaymentPayment;
+      'api::qualification.qualification': ApiQualificationQualification;
     }
   }
 }
