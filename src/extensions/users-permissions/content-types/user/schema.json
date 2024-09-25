@@ -111,6 +111,21 @@
     },
     "profile_picture": {
       "type": "string"
+    },
+    "transactionPin": {
+      "type": "password"
+    },
+    "qualifications": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::qualification.qualification",
+      "mappedBy": "user"
+    },
+    "payments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::payment.payment",
+      "mappedBy": "user"
     }
   }
 }
