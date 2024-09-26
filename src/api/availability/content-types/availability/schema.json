@@ -21,7 +21,7 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "doctor_availabilities"
     },
-    "time": {
+    "available_time": {
       "type": "json"
     }
   }

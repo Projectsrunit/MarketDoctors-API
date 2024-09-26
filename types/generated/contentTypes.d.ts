@@ -913,7 +913,7 @@ export interface ApiAvailabilityAvailability extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
-    time: Attribute.JSON;
+    available_time: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
