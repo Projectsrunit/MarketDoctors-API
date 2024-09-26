@@ -890,18 +890,19 @@ export interface ApiAvailabilityAvailability extends Schema.CollectionType {
     singularName: 'availability';
     pluralName: 'availabilities';
     displayName: 'Availability';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
     date: Attribute.Date;
-    time: Attribute.Time;
     users_permissions_user: Attribute.Relation<
       'api::availability.availability',
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    time: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

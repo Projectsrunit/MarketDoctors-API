@@ -4,7 +4,8 @@
   "info": {
     "singularName": "availability",
     "pluralName": "availabilities",
-    "displayName": "Availability"
+    "displayName": "Availability",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -14,14 +15,14 @@
     "date": {
       "type": "date"
     },
-    "time": {
-      "type": "time"
-    },
     "users_permissions_user": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "doctor_availabilities"
+    },
+    "time": {
+      "type": "json"
     }
   }
 }
