@@ -804,6 +804,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::payment.payment'
     >;
+    otpCode: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1012,6 +1013,39 @@ export interface ApiHealthTipHealthTip extends Schema.CollectionType {
   };
 }
 
+export interface ApiHospitalHospital extends Schema.CollectionType {
+  collectionName: 'hospitals';
+  info: {
+    singularName: 'hospital';
+    pluralName: 'hospitals';
+    displayName: 'Hospital';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    location: Attribute.String;
+    contact: Attribute.String;
+    email: Attribute.Email;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::hospital.hospital',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::hospital.hospital',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPaymentPayment extends Schema.CollectionType {
   collectionName: 'payments';
   info: {
@@ -1042,6 +1076,39 @@ export interface ApiPaymentPayment extends Schema.CollectionType {
       Attribute.Private;
     updatedBy: Attribute.Relation<
       'api::payment.payment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiPharmacyPharmacy extends Schema.CollectionType {
+  collectionName: 'pharmacies';
+  info: {
+    singularName: 'pharmacy';
+    pluralName: 'pharmacies';
+    displayName: 'Pharmacy';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    name: Attribute.String;
+    location: Attribute.String;
+    phone: Attribute.String;
+    email: Attribute.Email;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::pharmacy.pharmacy',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::pharmacy.pharmacy',
       'oneToOne',
       'admin::user'
     > &
@@ -1108,7 +1175,9 @@ declare module '@strapi/types' {
       'api::availability.availability': ApiAvailabilityAvailability;
       'api::case.case': ApiCaseCase;
       'api::health-tip.health-tip': ApiHealthTipHealthTip;
+      'api::hospital.hospital': ApiHospitalHospital;
       'api::payment.payment': ApiPaymentPayment;
+      'api::pharmacy.pharmacy': ApiPharmacyPharmacy;
       'api::qualification.qualification': ApiQualificationQualification;
     }
   }

@@ -71,7 +71,6 @@ module.exports = {
       years_of_experience: newUser.years_of_experience,
       facility: newUser.facility,
       specialisation: newUser.specialisation,
-      availability: newUser.availability,
       languages: newUser.languages,
       awards: newUser.awards,
       gender: newUser.gender,

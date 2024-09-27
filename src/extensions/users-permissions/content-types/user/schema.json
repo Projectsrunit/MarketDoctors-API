@@ -126,6 +126,9 @@
       "relation": "oneToMany",
       "target": "api::payment.payment",
       "mappedBy": "user"
+    },
+    "otpCode": {
+      "type": "string"
     }
   }
 }

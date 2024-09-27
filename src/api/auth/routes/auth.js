@@ -18,5 +18,13 @@ module.exports = {
         auth: false, // Login doesn't require authentication
       },
     },
+    // {
+    //   method: 'POST',
+    //   path: '/auth/verify-otp',
+    //   handler: 'auth.verifyOtp', // Add the verify OTP handler
+    //   config: {
+    //     auth: false, // OTP verification doesn't require authentication
+    //   },
+    // },
   ],
 };
