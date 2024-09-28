@@ -759,9 +759,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     lastName: Attribute.String & Attribute.Required;
     dateOfBirth: Attribute.Date & Attribute.Required;
     phone: Attribute.String & Attribute.Required;
-    confirmed: Attribute.Boolean &
-      Attribute.Required &
-      Attribute.DefaultTo<false>;
     years_of_experience: Attribute.Integer;
     facility: Attribute.String;
     specialisation: Attribute.String;
@@ -805,6 +802,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'api::payment.payment'
     >;
     otpCode: Attribute.String;
+    consultation_fee: Attribute.BigInteger;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

@@ -50,11 +50,6 @@
       "type": "string",
       "required": true
     },
-    "confirmed": {
-      "type": "boolean",
-      "default": false,
-      "required": true
-    },
     "years_of_experience": {
       "type": "integer"
     },
@@ -129,6 +124,9 @@
     },
     "otpCode": {
       "type": "string"
+    },
+    "consultation_fee": {
+      "type": "biginteger"
     }
   }
 }
