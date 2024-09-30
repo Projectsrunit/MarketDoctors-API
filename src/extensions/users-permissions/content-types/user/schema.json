@@ -64,9 +64,6 @@
     "specialisation": {
       "type": "string"
     },
-    "languages": {
-      "type": "json"
-    },
     "awards": {
       "type": "json"
     },
@@ -126,6 +123,9 @@
       "relation": "oneToMany",
       "target": "api::payment.payment",
       "mappedBy": "user"
+    },
+    "languages": {
+      "type": "string"
     }
   }
 }
