@@ -60,7 +60,7 @@
       "type": "string"
     },
     "languages": {
-      "type": "json"
+      "type": "string"
     },
     "awards": {
       "type": "json"
