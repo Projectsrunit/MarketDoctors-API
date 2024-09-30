@@ -765,7 +765,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     years_of_experience: Attribute.Integer;
     facility: Attribute.String;
     specialisation: Attribute.String;
-    languages: Attribute.JSON;
     awards: Attribute.JSON;
     cases: Attribute.Relation<
       'plugin::users-permissions.user',
@@ -804,6 +803,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::payment.payment'
     >;
+    languages: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1011,6 +1011,49 @@ export interface ApiHealthTipHealthTip extends Schema.CollectionType {
   };
 }
 
+export interface ApiMessageMessage extends Schema.CollectionType {
+  collectionName: 'messages';
+  info: {
+    singularName: 'message';
+    pluralName: 'messages';
+    displayName: 'Messages';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    text_body: Attribute.String;
+    document_url: Attribute.String;
+    delivery_status: Attribute.Boolean;
+    read_status: Attribute.Boolean;
+    sender: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    receiver: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPaymentPayment extends Schema.CollectionType {
   collectionName: 'payments';
   info: {
@@ -1107,6 +1150,7 @@ declare module '@strapi/types' {
       'api::availability.availability': ApiAvailabilityAvailability;
       'api::case.case': ApiCaseCase;
       'api::health-tip.health-tip': ApiHealthTipHealthTip;
+      'api::message.message': ApiMessageMessage;
       'api::payment.payment': ApiPaymentPayment;
       'api::qualification.qualification': ApiQualificationQualification;
     }
