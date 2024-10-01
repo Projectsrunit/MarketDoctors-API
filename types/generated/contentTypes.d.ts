@@ -857,6 +857,7 @@ export interface ApiAppointmentAppointment extends Schema.CollectionType {
     singularName: 'appointment';
     pluralName: 'appointments';
     displayName: 'Appointment';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -876,6 +877,7 @@ export interface ApiAppointmentAppointment extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
+    status: Attribute.Enumeration<['pending', 'confirmed']>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
