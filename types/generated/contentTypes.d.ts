@@ -762,7 +762,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     years_of_experience: Attribute.Integer;
     facility: Attribute.String;
     specialisation: Attribute.String;
-    languages: Attribute.JSON;
+    languages: Attribute.String;
     awards: Attribute.JSON;
     cases: Attribute.Relation<
       'plugin::users-permissions.user',
