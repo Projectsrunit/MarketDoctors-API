@@ -1017,6 +1017,7 @@ export interface ApiMessageMessage extends Schema.CollectionType {
     singularName: 'message';
     pluralName: 'messages';
     displayName: 'Messages';
+    description: '';
   };
   options: {
     draftAndPublish: true;
@@ -1024,8 +1025,8 @@ export interface ApiMessageMessage extends Schema.CollectionType {
   attributes: {
     text_body: Attribute.String;
     document_url: Attribute.String;
-    delivery_status: Attribute.Boolean;
-    read_status: Attribute.Boolean;
+    delivery_status: Attribute.Boolean & Attribute.DefaultTo<false>;
+    read_status: Attribute.Boolean & Attribute.DefaultTo<false>;
     sender: Attribute.Relation<
       'api::message.message',
       'oneToOne',

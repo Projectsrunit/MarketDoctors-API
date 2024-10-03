@@ -4,7 +4,8 @@
   "info": {
     "singularName": "message",
     "pluralName": "messages",
-    "displayName": "Messages"
+    "displayName": "Messages",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -18,10 +19,12 @@
       "type": "string"
     },
     "delivery_status": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "read_status": {
-      "type": "boolean"
+      "type": "boolean",
+      "default": false
     },
     "sender": {
       "type": "relation",
