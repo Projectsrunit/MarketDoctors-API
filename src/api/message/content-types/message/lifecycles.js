@@ -2,14 +2,12 @@
 module.exports = {
   async afterCreate(event) {
     const { result } = event;
-    const { receiver } = result;
-
-    // console.log(`AfterCreate Hook: New message for receiver ${receiver.id}`);
+    const { receiver, sender } = result;
 
     const receiverSocket = strapi['io'].connectedClients.get(receiver.id);
 
     if (receiverSocket) {
-      // console.log(`Notifying receiver ${receiver.id} about new message`);
+      console.log(`Notifying receiver ${receiver.id} about new message from sender ${sender.id}`);
       receiverSocket.emit('new_message', result);
     } else {
       // console.log('No receiverSocket. This is the connectedClients:', [...strapi['io'].connectedClients.entries()]);
@@ -18,21 +16,19 @@ module.exports = {
 
   async afterUpdate(event) {
     const { result } = event;
-    const { id, receiver, read_status, delivery_status } = result;
-    // console.log(`AfterUpdate Hook: Message ${id} updated`);
+    const { id, receiver, read_status, delivery_status, sender } = result;
 
-    // Access the socket from strapi['io'].connectedClients
-    const receiverSocket = strapi['io'].connectedClients.get(receiver.id);
+    const receiverSocket = strapi['io'].connectedClients.get(sender.id);
 
     if (receiverSocket) {
-      if (read_status !== undefined) {
-        // console.log(`Sending read status update for message ${id} to receiver ${receiver.id}`);
+      if (read_status == true) {
+        console.log(`Sending read status update for message ${id} to original sender ${sender.id}`);
         receiverSocket.emit('read_status_updated', result);
-      }
-
-      if (delivery_status !== undefined) {
-        // console.log(`Sending delivery status update for message ${id} to receiver ${receiver.id}`);
+      } else if (delivery_status == true) {
+        console.log(`Sending delivery status update for message ${id} to original sender ${sender.id}`);
         receiverSocket.emit('delivery_status_updated', result);
+      } else {
+        console.log('neither read nor delivery were true')
       }
     } else {
       // console.log('No receiverSocket. This is the connectedClients:', [...strapi['io'].connectedClients.entries()]);
@@ -40,10 +36,12 @@ module.exports = {
   },
 
   async beforeCreate(event) {
+    // console.log('beforecreate for message: params', event.params)
     event.params.populate = true;
   },
 
   async beforeUpdate(event) {
+    // console.log('beforeupdate for message: params', event.params)
     event.params.populate = true;
   }
 };

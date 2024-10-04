@@ -19,7 +19,9 @@ module.exports = {
    * run jobs, or perform some special logic.
    */ 
   bootstrap({ strapi }) {
-    const io = new Server(strapi.server.httpServer);
+    const io = new Server(strapi.server.httpServer, {
+      transports: ['websocket', 'polling']
+    });
   
     // Attach connectedClients map to strapi.io for global access
     strapi.io = io;
@@ -51,7 +53,6 @@ module.exports = {
           where: { id: message_id },
           data: { delivery_status: true },
         });
-        // console.log('Delivery status updated');
       });
   
       socket.on('update_read_status', async (data) => {
@@ -60,7 +61,6 @@ module.exports = {
           where: { id: message_id },
           data: { read_status: true },
         });
-        // console.log('Read status updated');
       });
   
       socket.on('get_older_messages', async (data) => {
@@ -77,7 +77,7 @@ module.exports = {
           limit: page_size,
         };
         const messages = await strapi.db.query('api::message.message').findMany(query);
-        // socket.emit('older_messages', messages);
+        socket.emit('older_messages', messages);
       });
   
       socket.on('new_message', async (data) => {
