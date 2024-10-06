@@ -54,6 +54,8 @@ module.exports = {
               if (message.receiver && message.receiver.id) {
                 message.receiver = message.receiver.id;
               }
+              if (message.createdBy) delete message.createdBy
+              if (message.updatedBy) delete message.updatedBy
               messagesRefined.push(message);
             });
             socket.emit('unread_messages', messagesRefined);
@@ -112,6 +114,8 @@ module.exports = {
             if (message.receiver && message.receiver.id) {
               message.receiver = message.receiver.id;
             }
+            if (message.createdBy) delete message.createdBy
+            if (message.updatedBy) delete message.updatedBy
             messagesRefined.push(message);
           })
           socket.emit('older_messages', messagesRefined);
