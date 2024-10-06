@@ -1,6 +1,7 @@
 'use strict';
 
 const { ApplicationError, ValidationError } = require('@strapi/utils').errors;
+const axios = require('axios');
 
 module.exports = {
   // Custom Registration Method
@@ -36,52 +37,90 @@ module.exports = {
       throw new ValidationError('Invalid role ID provided');
     }
 
-    // Create a new user with all fields, including optional ones
-    const newUser = await strapi.entityService.create('plugin::users-permissions.user', {
-      data: {
-        firstName,
-        lastName,
-        email,
-        password,
-        phone,
-        dateOfBirth,
-        role: roleEntry.id,
-        confirmed: confirmed || false, 
-        years_of_experience: years_of_experience || null,
-        facility: facility || null,
-        specialisation: specialisation || null,
-        availability: availability || null,
-        languages: languages || null,
-        awards: awards || null,
-        gender: gender || null,
-        home_address: home_address || null,
-        nearest_bus_stop: nearest_bus_stop || null,
-      },
-    });
-
-    // Manually sanitize the output by removing sensitive fields
-    const sanitizedUser = {
-      id: newUser.id,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      dateOfBirth: newUser.dateOfBirth,
-      phone: newUser.phone,
-      confirmed: newUser.confirmed,
-      years_of_experience: newUser.years_of_experience,
-      facility: newUser.facility,
-      specialisation: newUser.specialisation,
-      languages: newUser.languages,
-      awards: newUser.awards,
-      gender: newUser.gender,
-      home_address: newUser.home_address,
-      nearest_bus_stop: newUser.nearest_bus_stop,
+    // Create a new user with all fields, including optional ones, but do not save yet
+    const userToCreate = {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      dateOfBirth,
+      role: roleEntry.id,
+      confirmed: confirmed || false, 
+      years_of_experience: years_of_experience || null,
+      facility: facility || null,
+      specialisation: specialisation || null,
+      availability: availability || null,
+      languages: languages || null,
+      awards: awards || null,
+      gender: gender || null,
+      home_address: home_address || null,
+      nearest_bus_stop: nearest_bus_stop || null,
     };
 
-    return ctx.send({
-      user: sanitizedUser,
-    });
+    try {
+      // Attempt to send the OTP
+      const otpResponse = await axios.post('https://api.sendchamp.com/api/v1/verification/create', {
+        meta_data: {},
+        channel: 'email',
+        sender: 'Market Doctor', // Replace with your app name
+        token_type: 'numeric',
+        token_length: 4,
+        expiration_time: 10,
+        customer_email_address: email // Use the email provided in the request
+      }, {
+        headers: {
+          Authorization: `Bearer sendchamp_live_$2a$10$L4qwyCSHxA3J6rPJV1l4Bu.uIjF4.5R3HisqHnZnJHgAofZiswXhy`, // Replace with your Sendchamp API key
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Check if the OTP sending was successful
+      if (otpResponse.data.status !== 'success') {
+        throw new ApplicationError('Failed to send OTP');
+      }
+
+      // Save the user record only after successful OTP sending
+      const newUser = await strapi.entityService.create('plugin::users-permissions.user', {
+        data: userToCreate,
+      });
+
+      // Manually sanitize the output by removing sensitive fields
+      const sanitizedUser = {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        dateOfBirth: newUser.dateOfBirth,
+        phone: newUser.phone,
+        confirmed: newUser.confirmed,
+        years_of_experience: newUser.years_of_experience,
+        facility: newUser.facility,
+        specialisation: newUser.specialisation,
+        // @ts-ignore
+        languages: newUser.languages,
+        awards: newUser.awards,
+        gender: newUser.gender,
+        home_address: newUser.home_address,
+        nearest_bus_stop: newUser.nearest_bus_stop,
+      };
+
+      // Include Sendchamp's response in the return body
+      return ctx.send({
+        message: 'OTP sent successfully',
+        user: sanitizedUser,
+        sendchampResponse: otpResponse.data,  // Add Sendchamp response data
+      });
+
+    } catch (error) {
+      console.error('Error in registration process:', error.response ? error.response.data : error.message);
+      
+      // If an error occurs, you may want to ensure that no user is created
+      // Throw an ApplicationError for all caught errors
+      throw new ApplicationError('Could not complete registration, please try again');
+    }
   },
+
 
   // Custom Login Method
   async login(ctx) {
@@ -104,7 +143,7 @@ module.exports = {
       throw new ApplicationError('Invalid password');
     }
 
-     // Check if the role matches
+    // Check if the role matches
     if (user.role && user.role.id !== role) {
       throw new ApplicationError('Role does not match');
     }
@@ -180,5 +219,46 @@ module.exports = {
     return ctx.send({
       user,
     });
+  },
+   // Method to Verify OTP
+   async verifyOTP(ctx) {
+    const { verification_reference, verification_code } = ctx.request.body;
+
+    // Validate the required fields
+    if (!verification_reference || !verification_code) {
+      throw new ValidationError('Please provide both verification reference and code');
+    }
+
+    try {
+      // Make the API call to verify the OTP
+      const otpVerificationResponse = await axios.post(
+        'https://api.sendchamp.com/api/v1/verification/confirm',
+        {
+          verification_reference: verification_reference,
+          verification_code: verification_code
+        },
+        {
+          headers: {
+            Authorization: 'Bearer sendchamp_live_$2a$10$L4qwyCSHxA3J6rPJV1l4Bu.uIjF4.5R3HisqHnZnJHgAofZiswXhy', // Replace with your Sendchamp API key
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        }
+      );
+
+      // Check if the OTP verification was successful
+      if (otpVerificationResponse.data.status === 'success') {
+        return ctx.send({
+          message: 'OTP verified successfully',
+          data: otpVerificationResponse.data, // Sendchamp's response data
+        });
+      } else {
+        // Handle failed verification
+        throw new ApplicationError('OTP verification failed');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error.response ? error.response.data : error.message);
+      throw new ApplicationError('Could not verify OTP, please try again');
+    }
   },
 };

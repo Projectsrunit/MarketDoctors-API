@@ -125,6 +125,10 @@
     "consultation_fee": {
       "type": "biginteger"
     },
+    "confirmed": {
+      "type": "boolean",
+      "default": false
+    },
     "languages": {
       "type": "string"
     }
