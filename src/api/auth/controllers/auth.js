@@ -213,4 +213,45 @@ module.exports = {
       user,
     });
   },
+   // Method to Verify OTP
+   async verifyOTP(ctx) {
+    const { verification_reference, verification_code } = ctx.request.body;
+
+    // Validate the required fields
+    if (!verification_reference || !verification_code) {
+      throw new ValidationError('Please provide both verification reference and code');
+    }
+
+    try {
+      // Make the API call to verify the OTP
+      const otpVerificationResponse = await axios.post(
+        'https://api.sendchamp.com/api/v1/verification/confirm',
+        {
+          verification_reference: verification_reference,
+          verification_code: verification_code
+        },
+        {
+          headers: {
+            Authorization: 'Bearer sendchamp_live_$2a$10$L4qwyCSHxA3J6rPJV1l4Bu.uIjF4.5R3HisqHnZnJHgAofZiswXhy', // Replace with your Sendchamp API key
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        }
+      );
+
+      // Check if the OTP verification was successful
+      if (otpVerificationResponse.data.status === 'success') {
+        return ctx.send({
+          message: 'OTP verified successfully',
+          data: otpVerificationResponse.data, // Sendchamp's response data
+        });
+      } else {
+        // Handle failed verification
+        throw new ApplicationError('OTP verification failed');
+      }
+    } catch (error) {
+      console.error('Error verifying OTP:', error.response ? error.response.data : error.message);
+      throw new ApplicationError('Could not verify OTP, please try again');
+    }
+  },
 };
