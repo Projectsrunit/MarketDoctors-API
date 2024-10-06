@@ -37,38 +37,37 @@ module.exports = {
       throw new ValidationError('Invalid role ID provided');
     }
 
-    // Create a new user with all fields, including optional ones
-    const newUser = await strapi.entityService.create('plugin::users-permissions.user', {
-      data: {
-        firstName,
-        lastName,
-        email,
-        password,
-        phone,
-        dateOfBirth,
-        role: roleEntry.id,
-        confirmed: confirmed || false, 
-        years_of_experience: years_of_experience || null,
-        facility: facility || null,
-        specialisation: specialisation || null,
-        availability: availability || null,
-        languages: languages || null,
-        awards: awards || null,
-        gender: gender || null,
-        home_address: home_address || null,
-        nearest_bus_stop: nearest_bus_stop || null,
-      },
-    });
+    // Create a new user with all fields, including optional ones, but do not save yet
+    const userToCreate = {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      dateOfBirth,
+      role: roleEntry.id,
+      confirmed: confirmed || false, 
+      years_of_experience: years_of_experience || null,
+      facility: facility || null,
+      specialisation: specialisation || null,
+      availability: availability || null,
+      languages: languages || null,
+      awards: awards || null,
+      gender: gender || null,
+      home_address: home_address || null,
+      nearest_bus_stop: nearest_bus_stop || null,
+    };
 
     try {
+      // Attempt to send the OTP
       const otpResponse = await axios.post('https://api.sendchamp.com/api/v1/verification/create', {
         meta_data: {},
         channel: 'email',
-        sender: 'Market Doctor',
+        sender: 'Market Doctor', // Replace with your app name
         token_type: 'numeric',
         token_length: 4,
         expiration_time: 10,
-        customer_email_address: newUser.email
+        customer_email_address: email // Use the email provided in the request
       }, {
         headers: {
           Authorization: `Bearer sendchamp_live_$2a$10$L4qwyCSHxA3J6rPJV1l4Bu.uIjF4.5R3HisqHnZnJHgAofZiswXhy`, // Replace with your Sendchamp API key
@@ -76,12 +75,15 @@ module.exports = {
         }
       });
 
+      // Check if the OTP sending was successful
       if (otpResponse.data.status !== 'success') {
         throw new ApplicationError('Failed to send OTP');
       }
 
-      // Capture Sendchamp's response
-      const sendchampResponse = otpResponse.data;
+      // Save the user record only after successful OTP sending
+      const newUser = await strapi.entityService.create('plugin::users-permissions.user', {
+        data: userToCreate,
+      });
 
       // Manually sanitize the output by removing sensitive fields
       const sanitizedUser = {
@@ -106,14 +108,18 @@ module.exports = {
       return ctx.send({
         message: 'OTP sent successfully',
         user: sanitizedUser,
-        sendchampResponse,  // Add Sendchamp response data
+        sendchampResponse: otpResponse.data,  // Add Sendchamp response data
       });
 
     } catch (error) {
-      console.error('Error sending OTP:', error.response ? error.response.data : error.message);
-      throw new ApplicationError('Could not send OTP, please try again');
+      console.error('Error in registration process:', error.response ? error.response.data : error.message);
+      
+      // If an error occurs, you may want to ensure that no user is created
+      // Throw an ApplicationError for all caught errors
+      throw new ApplicationError('Could not complete registration, please try again');
     }
   },
+
 
   // Custom Login Method
   async login(ctx) {
