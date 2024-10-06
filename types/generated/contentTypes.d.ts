@@ -803,6 +803,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     >;
     otpCode: Attribute.String;
     consultation_fee: Attribute.BigInteger;
+    confirmed: Attribute.Boolean & Attribute.DefaultTo<false>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<

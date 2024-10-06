@@ -1,6 +1,7 @@
 'use strict';
 
 const { ApplicationError, ValidationError } = require('@strapi/utils').errors;
+const axios = require('axios');
 
 module.exports = {
   // Custom Registration Method
@@ -59,6 +60,30 @@ module.exports = {
       },
     });
 
+    try {
+      const otpResponse = await axios.post('https://api.sendchamp.com/api/v1/verification/create', {
+        meta_data: {},
+        channel: 'email',
+        sender: 'MarketDocto', // Replace with your app name
+        token_type: 'numeric',
+        token_length: 4,
+        expiration_time: 10,
+        customer_email_address: newUser.email
+      }, {
+        headers: {
+          Authorization: `Bearer sendchamp_live_$2a$10$L4qwyCSHxA3J6rPJV1l4Bu.uIjF4.5R3HisqHnZnJHgAofZiswXhy`, // Replace with your Sendchamp API key
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (otpResponse.data.status !== 'success') {
+        throw new ApplicationError('Failed to send OTP');
+      }
+    } catch (error) {
+      console.error('Error sending OTP:', error.response ? error.response.data : error.message);
+      throw new ApplicationError('Could not send OTP, please try again');
+    }
+
     // Manually sanitize the output by removing sensitive fields
     const sanitizedUser = {
       id: newUser.id,
@@ -79,6 +104,7 @@ module.exports = {
     };
 
     return ctx.send({
+      message: 'OTP sent successfully',
       user: sanitizedUser,
     });
   },
@@ -104,7 +130,7 @@ module.exports = {
       throw new ApplicationError('Invalid password');
     }
 
-     // Check if the role matches
+    // Check if the role matches
     if (user.role && user.role.id !== role) {
       throw new ApplicationError('Role does not match');
     }
