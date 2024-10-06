@@ -64,7 +64,7 @@ module.exports = {
       const otpResponse = await axios.post('https://api.sendchamp.com/api/v1/verification/create', {
         meta_data: {},
         channel: 'email',
-        sender: 'MarketDocto', // Replace with your app name
+        sender: 'Market Doctor',
         token_type: 'numeric',
         token_length: 4,
         expiration_time: 10,
@@ -79,34 +79,40 @@ module.exports = {
       if (otpResponse.data.status !== 'success') {
         throw new ApplicationError('Failed to send OTP');
       }
+
+      // Capture Sendchamp's response
+      const sendchampResponse = otpResponse.data;
+
+      // Manually sanitize the output by removing sensitive fields
+      const sanitizedUser = {
+        id: newUser.id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        dateOfBirth: newUser.dateOfBirth,
+        phone: newUser.phone,
+        confirmed: newUser.confirmed,
+        years_of_experience: newUser.years_of_experience,
+        facility: newUser.facility,
+        specialisation: newUser.specialisation,
+        languages: newUser.languages,
+        awards: newUser.awards,
+        gender: newUser.gender,
+        home_address: newUser.home_address,
+        nearest_bus_stop: newUser.nearest_bus_stop,
+      };
+
+      // Include Sendchamp's response in the return body
+      return ctx.send({
+        message: 'OTP sent successfully',
+        user: sanitizedUser,
+        sendchampResponse,  // Add Sendchamp response data
+      });
+
     } catch (error) {
       console.error('Error sending OTP:', error.response ? error.response.data : error.message);
       throw new ApplicationError('Could not send OTP, please try again');
     }
-
-    // Manually sanitize the output by removing sensitive fields
-    const sanitizedUser = {
-      id: newUser.id,
-      firstName: newUser.firstName,
-      lastName: newUser.lastName,
-      email: newUser.email,
-      dateOfBirth: newUser.dateOfBirth,
-      phone: newUser.phone,
-      confirmed: newUser.confirmed,
-      years_of_experience: newUser.years_of_experience,
-      facility: newUser.facility,
-      specialisation: newUser.specialisation,
-      languages: newUser.languages,
-      awards: newUser.awards,
-      gender: newUser.gender,
-      home_address: newUser.home_address,
-      nearest_bus_stop: newUser.nearest_bus_stop,
-    };
-
-    return ctx.send({
-      message: 'OTP sent successfully',
-      user: sanitizedUser,
-    });
   },
 
   // Custom Login Method
