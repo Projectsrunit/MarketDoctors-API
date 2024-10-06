@@ -762,7 +762,6 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     years_of_experience: Attribute.Integer;
     facility: Attribute.String;
     specialisation: Attribute.String;
-    languages: Attribute.String;
     awards: Attribute.JSON;
     cases: Attribute.Relation<
       'plugin::users-permissions.user',
@@ -804,6 +803,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     otpCode: Attribute.String;
     consultation_fee: Attribute.BigInteger;
     confirmed: Attribute.Boolean & Attribute.DefaultTo<false>;
+    languages: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1047,6 +1047,50 @@ export interface ApiHospitalHospital extends Schema.CollectionType {
   };
 }
 
+export interface ApiMessageMessage extends Schema.CollectionType {
+  collectionName: 'messages';
+  info: {
+    singularName: 'message';
+    pluralName: 'messages';
+    displayName: 'Messages';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    text_body: Attribute.String;
+    document_url: Attribute.String;
+    delivery_status: Attribute.Boolean & Attribute.DefaultTo<false>;
+    read_status: Attribute.Boolean & Attribute.DefaultTo<false>;
+    sender: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    receiver: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::message.message',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPaymentPayment extends Schema.CollectionType {
   collectionName: 'payments';
   info: {
@@ -1177,6 +1221,7 @@ declare module '@strapi/types' {
       'api::case.case': ApiCaseCase;
       'api::health-tip.health-tip': ApiHealthTipHealthTip;
       'api::hospital.hospital': ApiHospitalHospital;
+      'api::message.message': ApiMessageMessage;
       'api::payment.payment': ApiPaymentPayment;
       'api::pharmacy.pharmacy': ApiPharmacyPharmacy;
       'api::qualification.qualification': ApiQualificationQualification;

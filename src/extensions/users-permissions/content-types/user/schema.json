@@ -59,9 +59,6 @@
     "specialisation": {
       "type": "string"
     },
-    "languages": {
-      "type": "string"
-    },
     "awards": {
       "type": "json"
     },
@@ -131,6 +128,9 @@
     "confirmed": {
       "type": "boolean",
       "default": false
+    },
+    "languages": {
+      "type": "string"
     }
   }
 }

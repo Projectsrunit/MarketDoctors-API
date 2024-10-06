@@ -97,6 +97,7 @@ module.exports = {
         years_of_experience: newUser.years_of_experience,
         facility: newUser.facility,
         specialisation: newUser.specialisation,
+        // @ts-ignore
         languages: newUser.languages,
         awards: newUser.awards,
         gender: newUser.gender,
