@@ -43,8 +43,20 @@ module.exports = {
                   $in: [false, null],
                 },
               },
+              populate: true
             });
-            socket.emit('unread_messages', unreadMessages);
+            const messagesRefined = []
+            unreadMessages.forEach(message => {
+              message = JSON.parse(JSON.stringify(message))
+              if (message.sender && message.sender.id) {
+                message.sender = message.sender.id;
+              }
+              if (message.receiver && message.receiver.id) {
+                message.receiver = message.receiver.id;
+              }
+              messagesRefined.push(message);
+            });
+            socket.emit('unread_messages', messagesRefined);
           } catch (error) {
             console.error(`Error fetching unread messages for user ${own_id}:`, error);
           }
@@ -88,9 +100,21 @@ module.exports = {
             },
             orderBy: { createdAt: 'desc' },
             limit: page_size,
+            populate: true
           };
           const messages = await strapi.db.query('api::message.message').findMany(query);
-          socket.emit('older_messages', messages);
+          const messagesRefined = []
+          messages.forEach(message => {
+            message = JSON.parse(JSON.stringify(message))
+            if (message.sender && message.sender.id) {
+              message.sender = message.sender.id;
+            }
+            if (message.receiver && message.receiver.id) {
+              message.receiver = message.receiver.id;
+            }
+            messagesRefined.push(message);
+          })
+          socket.emit('older_messages', messagesRefined);
         } catch (error) {
           console.error(`Error fetching older messages between user ${own_id} and ${other_id}:`, error);
         }
