@@ -4,10 +4,10 @@ module.exports = {
     const { result } = event;
     const { receiver, sender } = result;
     const receiverSocket = strapi['io'].connectedClients.get(receiver.id);
-    console.log('sending to socket of receiver', receiver.id)
+    // console.log('sending to socket of receiver', receiver.id)
     if (receiverSocket) {
       const resultobj = JSON.parse(JSON.stringify(result))
-      resultobj.sender = sender.id``
+      resultobj.sender = sender.id
       resultobj.receiver = receiver.id
       if (resultobj.createdBy) delete resultobj.createdBy
       if(resultobj.updatedBy) delete resultobj.updatedBy
