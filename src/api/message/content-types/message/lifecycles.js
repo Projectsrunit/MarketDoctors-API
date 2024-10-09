@@ -29,7 +29,9 @@ module.exports = {
         resultobj.sender = result.sender.id
         resultobj.receiver = result.receiver.id
         if (resultobj.createdBy) delete resultobj.createdBy
-        if(resultobj.updatedBy) delete resultobj.updatedBy
+        if (resultobj.createdAt) delete resultobj.createdAt
+        if (resultobj.updatedBy) delete resultobj.updatedBy
+        if (resultobj.updatedAt) delete resultobj.updatedAt
         receiverSocket.emit('read_status_updated', resultobj);
       } else if (delivery_status == true) {
         const resultobj = JSON.parse(JSON.stringify(result))

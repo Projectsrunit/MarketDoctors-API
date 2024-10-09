@@ -124,10 +124,10 @@ module.exports = {
         }
       });
 
-      socket.on('new_message', async (data) => {
+      socket.on('new_message', async (data, callback) => {
         const { sender, receiver, text_body, document_url } = data;
         try {
-          await strapi.db.query('api::message.message').create({
+          const newMessage = await strapi.db.query('api::message.message').create({
             data: {
               sender,
               receiver,
@@ -137,10 +137,34 @@ module.exports = {
               read_status: false,
             },
           });
+
+          const mes = JSON.parse(JSON.stringify(newMessage))
+            if (newMessage.sender && newMessage.sender.id) {
+              mes.sender = newMessage.sender.id;
+            }
+            if (newMessage.receiver && newMessage.receiver.id) {
+              mes.receiver = newMessage.receiver.id;
+            }
+            if (mes.createdBy) delete mes.createdBy
+            if (mes.updatedBy) delete mes.updatedBy
+      
+          if (callback) {
+            callback({
+              success: true,
+              message: mes,
+            });
+          }
         } catch (error) {
           console.error(`Error creating new message from user ${sender} to user ${receiver}:`, error);
+      
+          if (callback) {
+            callback({
+              success: false,
+              error: `Failed to create message from user ${sender} to user ${receiver}`,
+            });
+          }
         }
-      });
+      });      
 
       socket.on('disconnect', () => {
         const disconnectedUserId = [...strapi.io.connectedClients.entries()]
