@@ -139,15 +139,15 @@ module.exports = {
           });
 
           const mes = JSON.parse(JSON.stringify(newMessage))
-            if (newMessage.sender && newMessage.sender.id) {
-              mes.sender = newMessage.sender.id;
-            }
-            if (newMessage.receiver && newMessage.receiver.id) {
-              mes.receiver = newMessage.receiver.id;
-            }
-            if (mes.createdBy) delete mes.createdBy
-            if (mes.updatedBy) delete mes.updatedBy
-      
+          if (newMessage.sender && newMessage.sender.id) {
+            mes.sender = newMessage.sender.id;
+          }
+          if (newMessage.receiver && newMessage.receiver.id) {
+            mes.receiver = newMessage.receiver.id;
+          }
+          if (mes.createdBy) delete mes.createdBy
+          if (mes.updatedBy) delete mes.updatedBy
+
           if (callback) {
             callback({
               success: true,
@@ -156,7 +156,7 @@ module.exports = {
           }
         } catch (error) {
           console.error(`Error creating new message from user ${sender} to user ${receiver}:`, error);
-      
+
           if (callback) {
             callback({
               success: false,
@@ -164,7 +164,7 @@ module.exports = {
             });
           }
         }
-      });      
+      });
 
       socket.on('disconnect', () => {
         const disconnectedUserId = [...strapi.io.connectedClients.entries()]
