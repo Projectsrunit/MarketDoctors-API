@@ -781,7 +781,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     gender: Attribute.String;
     home_address: Attribute.String;
     nearest_bus_stop: Attribute.String;
-    picture_url: Attribute.String;
+    certify_url: Attribute.String;
     doctor_availabilities: Attribute.Relation<
       'plugin::users-permissions.user',
       'oneToMany',

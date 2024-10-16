@@ -89,7 +89,7 @@
     "nearest_bus_stop": {
       "type": "string"
     },
-    "picture_url": {
+    "certify_url": {
       "type": "string"
     },
     "doctor_availabilities": {
