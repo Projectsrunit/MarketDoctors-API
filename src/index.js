@@ -48,12 +48,11 @@ module.exports = {
             const messagesRefined = []
             unreadMessages.forEach(message => {
               message = JSON.parse(JSON.stringify(message))
-              if (message.sender && message.sender.id) {
-                message.sender = message.sender.id;
-              }
-              if (message.receiver && message.receiver.id) {
-                message.receiver = message.receiver.id;
-              }
+              if (!message.sender || !message.receiver) return
+
+              message.sender = message.sender.id;
+              message.receiver = message.receiver.id;
+
               if (message.createdBy) delete message.createdBy
               if (message.updatedBy) delete message.updatedBy
               messagesRefined.push(message);
@@ -90,9 +89,9 @@ module.exports = {
       });
 
       socket.on('get_older_messages', async (data) => {
-        const { own_id, other_id, oldest_message_date, page_size = 20 } = data;
+        const { own_id, other_id, oldest_message_date } = data;
         try {
-          const query = {
+          const messages = await strapi.db.query('api::message.message').findMany({
             where: {
               $or: [
                 { sender: own_id, receiver: other_id },
@@ -101,19 +100,15 @@ module.exports = {
               ...(oldest_message_date && { createdAt: { $lt: new Date(oldest_message_date) } }),
             },
             orderBy: { createdAt: 'desc' },
-            limit: page_size,
             populate: true
-          };
-          const messages = await strapi.db.query('api::message.message').findMany(query);
+          });
           const messagesRefined = []
           messages.forEach(message => {
             message = JSON.parse(JSON.stringify(message))
-            if (message.sender && message.sender.id) {
-              message.sender = message.sender.id;
-            }
-            if (message.receiver && message.receiver.id) {
-              message.receiver = message.receiver.id;
-            }
+            if (!message.sender || !message.receiver) return
+
+            message.sender = message.sender.id;
+            message.receiver = message.receiver.id;
             if (message.createdBy) delete message.createdBy
             if (message.updatedBy) delete message.updatedBy
             messagesRefined.push(message);

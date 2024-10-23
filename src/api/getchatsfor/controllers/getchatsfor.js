@@ -18,11 +18,11 @@ module.exports = {
       const uniqueUserIds = new Set();
     
       asSender.forEach(message => {
-        uniqueUserIds.add(message.receiver.id);
+        uniqueUserIds.add(message.receiver?.id);
       });
     
       asReceiver.forEach(message => {
-        uniqueUserIds.add(message.sender.id);
+        uniqueUserIds.add(message.sender?.id);
       });
     
       const userIdsArray = Array.from(uniqueUserIds);
@@ -31,7 +31,11 @@ module.exports = {
         where: { id: { $in: userIdsArray }, role: role },
         populate: true,
       });
-      usersData.forEach(el => {if (el.password) delete el.password})
+
+      usersData.forEach(el => {
+        if (el.password) delete el.password;
+      });
+            
       ctx.body = usersData;
     } catch (err) {
       ctx.body = err;
