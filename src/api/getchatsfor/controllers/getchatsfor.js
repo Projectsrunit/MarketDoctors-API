@@ -9,14 +9,13 @@ module.exports = {
         where: { sender: own_id },
         populate: true,
       });
-    
+
       const asReceiver = await strapi.db.query('api::message.message').findMany({
         where: { receiver: own_id },
         populate: true,
       });
-    
+
       const uniqueUserIds = new Set();
-    
       asSender.forEach(message => {
         uniqueUserIds.add(message.receiver?.id);
       });
@@ -24,21 +23,21 @@ module.exports = {
       asReceiver.forEach(message => {
         uniqueUserIds.add(message.sender?.id);
       });
-    
-      const userIdsArray = Array.from(uniqueUserIds);
-    
+      const userIdsArray = Array.from(uniqueUserIds).filter(id => id != null);
+      console.log('unique userids:', userIdsArray)
       const usersData = await strapi.db.query('plugin::users-permissions.user').findMany({
         where: { id: { $in: userIdsArray }, role: role },
         populate: true,
       });
-
+      console.log('usersData with their passes:', usersData)
       usersData.forEach(el => {
         if (el.password) delete el.password;
       });
             
       ctx.body = usersData;
-    } catch (err) {
-      ctx.body = err;
+    } catch (error) {
+      ctx.status = 400
+      ctx.body = {error};
     }    
   }
 };
