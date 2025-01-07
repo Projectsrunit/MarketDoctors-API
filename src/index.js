@@ -62,7 +62,7 @@ module.exports = {
             }
             socket.emit('catch_up_db', messagesRefined);
           } catch (error) {
-            console.error(`Error fetching unread messages for user ${own_id}:`, error);
+            console.error(`Error fetching newer messages for user ${own_id}:`, error);
           }
         }
       });

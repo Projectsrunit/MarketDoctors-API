@@ -971,6 +971,7 @@ export interface ApiCaseCase extends Schema.CollectionType {
     blood_glucose: Attribute.Decimal;
     weight: Attribute.Decimal;
     height: Attribute.Decimal;
+    questionnaire: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

@@ -74,6 +74,9 @@
     },
     "height": {
       "type": "decimal"
+    },
+    "questionnaire": {
+      "type": "json"
     }
   }
 }
