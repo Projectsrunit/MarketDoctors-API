@@ -24,12 +24,11 @@ module.exports = {
         uniqueUserIds.add(message.sender?.id);
       });
       const userIdsArray = Array.from(uniqueUserIds).filter(id => id != null);
-      console.log('unique userids:', userIdsArray)
       const usersData = await strapi.db.query('plugin::users-permissions.user').findMany({
         where: { id: { $in: userIdsArray }, role: role },
         populate: true,
       });
-      console.log('usersData with their passes:', usersData)
+
       usersData.forEach(el => {
         if (el.password) delete el.password;
       });

@@ -31,33 +31,36 @@ module.exports = {
       console.log('A user connected');
 
       socket.on('authenticate', async (data) => {
-        const { own_id } = data;
+        const { own_id, message_dates } = data;
         if (own_id) {
           strapi.io.connectedClients.set(own_id, socket);
 
           try {
-            const unreadMessages = await strapi.db.query('api::message.message').findMany({
-              where: {
-                receiver: own_id,
-                read_status: {
-                  $in: [false, null],
-                },
-              },
-              populate: true
-            });
             const messagesRefined = []
-            unreadMessages.forEach(message => {
-              message = JSON.parse(JSON.stringify(message))
-              if (!message.sender || !message.receiver) return
+            for (let other_id in message_dates) {
+              const newerMessages = await strapi.db.query('api::message.message').findMany({
+                where: {
+                  $or: [
+                    { sender: own_id, receiver: other_id },
+                    { sender: other_id, receiver: own_id },
+                  ],
+                  createdAt: { $gt: new Date(message_dates[other_id]) }
+                },
+                populate: true
+              });
+              newerMessages.forEach(message => {
+                message = JSON.parse(JSON.stringify(message))
+                if (!message.sender || !message.receiver) return
 
-              message.sender = message.sender.id;
-              message.receiver = message.receiver.id;
+                message.sender = message.sender.id;
+                message.receiver = message.receiver.id;
 
-              if (message.createdBy) delete message.createdBy
-              if (message.updatedBy) delete message.updatedBy
-              messagesRefined.push(message);
-            });
-            socket.emit('unread_messages', messagesRefined);
+                if (message.createdBy) delete message.createdBy
+                if (message.updatedBy) delete message.updatedBy
+                messagesRefined.push(message);
+              });
+            }
+            socket.emit('catch_up_db', messagesRefined);
           } catch (error) {
             console.error(`Error fetching unread messages for user ${own_id}:`, error);
           }
