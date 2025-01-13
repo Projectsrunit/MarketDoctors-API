@@ -31,36 +31,38 @@ module.exports = {
       console.log('A user connected');
 
       socket.on('authenticate', async (data) => {
-        const { own_id } = data;
+        const { own_id, message_dates } = data;
         if (own_id) {
           strapi.io.connectedClients.set(own_id, socket);
 
           try {
-            const unreadMessages = await strapi.db.query('api::message.message').findMany({
-              where: {
-                receiver: own_id,
-                read_status: {
-                  $in: [false, null],
-                },
-              },
-              populate: true
-            });
             const messagesRefined = []
-            unreadMessages.forEach(message => {
-              message = JSON.parse(JSON.stringify(message))
-              if (message.sender && message.sender.id) {
+            for (let other_id in message_dates) {
+              const newerMessages = await strapi.db.query('api::message.message').findMany({
+                where: {
+                  $or: [
+                    { sender: own_id, receiver: other_id },
+                    { sender: other_id, receiver: own_id },
+                  ],
+                  createdAt: { $gt: new Date(message_dates[other_id]) }
+                },
+                populate: true
+              });
+              newerMessages.forEach(message => {
+                message = JSON.parse(JSON.stringify(message))
+                if (!message.sender || !message.receiver) return
+
                 message.sender = message.sender.id;
-              }
-              if (message.receiver && message.receiver.id) {
                 message.receiver = message.receiver.id;
-              }
-              if (message.createdBy) delete message.createdBy
-              if (message.updatedBy) delete message.updatedBy
-              messagesRefined.push(message);
-            });
-            socket.emit('unread_messages', messagesRefined);
+
+                if (message.createdBy) delete message.createdBy
+                if (message.updatedBy) delete message.updatedBy
+                messagesRefined.push(message);
+              });
+            }
+            socket.emit('catch_up_db', messagesRefined);
           } catch (error) {
-            console.error(`Error fetching unread messages for user ${own_id}:`, error);
+            console.error(`Error fetching newer messages for user ${own_id}:`, error);
           }
         }
       });
@@ -90,9 +92,9 @@ module.exports = {
       });
 
       socket.on('get_older_messages', async (data) => {
-        const { own_id, other_id, oldest_message_date, page_size = 20 } = data;
+        const { own_id, other_id, oldest_message_date } = data;
         try {
-          const query = {
+          const messages = await strapi.db.query('api::message.message').findMany({
             where: {
               $or: [
                 { sender: own_id, receiver: other_id },
@@ -101,19 +103,15 @@ module.exports = {
               ...(oldest_message_date && { createdAt: { $lt: new Date(oldest_message_date) } }),
             },
             orderBy: { createdAt: 'desc' },
-            limit: page_size,
             populate: true
-          };
-          const messages = await strapi.db.query('api::message.message').findMany(query);
+          });
           const messagesRefined = []
           messages.forEach(message => {
             message = JSON.parse(JSON.stringify(message))
-            if (message.sender && message.sender.id) {
-              message.sender = message.sender.id;
-            }
-            if (message.receiver && message.receiver.id) {
-              message.receiver = message.receiver.id;
-            }
+            if (!message.sender || !message.receiver) return
+
+            message.sender = message.sender.id;
+            message.receiver = message.receiver.id;
             if (message.createdBy) delete message.createdBy
             if (message.updatedBy) delete message.updatedBy
             messagesRefined.push(message);
@@ -139,15 +137,15 @@ module.exports = {
           });
 
           const mes = JSON.parse(JSON.stringify(newMessage))
-            if (newMessage.sender && newMessage.sender.id) {
-              mes.sender = newMessage.sender.id;
-            }
-            if (newMessage.receiver && newMessage.receiver.id) {
-              mes.receiver = newMessage.receiver.id;
-            }
-            if (mes.createdBy) delete mes.createdBy
-            if (mes.updatedBy) delete mes.updatedBy
-      
+          if (newMessage.sender && newMessage.sender.id) {
+            mes.sender = newMessage.sender.id;
+          }
+          if (newMessage.receiver && newMessage.receiver.id) {
+            mes.receiver = newMessage.receiver.id;
+          }
+          if (mes.createdBy) delete mes.createdBy
+          if (mes.updatedBy) delete mes.updatedBy
+
           if (callback) {
             callback({
               success: true,
@@ -156,7 +154,7 @@ module.exports = {
           }
         } catch (error) {
           console.error(`Error creating new message from user ${sender} to user ${receiver}:`, error);
-      
+
           if (callback) {
             callback({
               success: false,
@@ -164,7 +162,7 @@ module.exports = {
             });
           }
         }
-      });      
+      });
 
       socket.on('disconnect', () => {
         const disconnectedUserId = [...strapi.io.connectedClients.entries()]

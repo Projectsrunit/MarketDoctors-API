@@ -41,7 +41,8 @@
       "enum": [
         "pending",
         "confirmed"
-      ]
+      ],
+      "default": "pending"
     }
   }
 }

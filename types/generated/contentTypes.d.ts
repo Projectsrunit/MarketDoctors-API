@@ -878,7 +878,8 @@ export interface ApiAppointmentAppointment extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
-    status: Attribute.Enumeration<['pending', 'confirmed']>;
+    status: Attribute.Enumeration<['pending', 'confirmed']> &
+      Attribute.DefaultTo<'pending'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -970,6 +971,7 @@ export interface ApiCaseCase extends Schema.CollectionType {
     blood_glucose: Attribute.Decimal;
     weight: Attribute.Decimal;
     height: Attribute.Decimal;
+    questionnaire: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
