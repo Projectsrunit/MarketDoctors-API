@@ -34,6 +34,5 @@
     "node": "22.x",
     "npm": ">=9.x"
   },
-  "license": "MIT",
-  "packageManager": "yarn@4.6.0"
+  "license": "MIT"
 }
