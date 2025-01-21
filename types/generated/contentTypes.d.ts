@@ -972,6 +972,7 @@ export interface ApiCaseCase extends Schema.CollectionType {
     weight: Attribute.Decimal;
     height: Attribute.Decimal;
     questionnaire: Attribute.JSON;
+    symptoms: Attribute.JSON;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
