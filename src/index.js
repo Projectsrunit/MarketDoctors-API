@@ -32,7 +32,7 @@ module.exports = {
 
       socket.on('authenticate', async (data) => {
         const { own_id, message_dates } = data;
-        console.log('someone authenticated with id', own_id, 'and message_dates:', message_dates)
+        // console.log('someone authenticated with id', own_id, 'and message_dates:', message_dates)
         if (own_id) {
           strapi.io.connectedClients.set(own_id, socket);
 
