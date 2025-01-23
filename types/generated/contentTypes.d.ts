@@ -949,7 +949,6 @@ export interface ApiCaseCase extends Schema.CollectionType {
   attributes: {
     first_name: Attribute.String;
     last_name: Attribute.String;
-    email: Attribute.Email;
     phone_number: Attribute.String;
     medical_details: Attribute.JSON;
     existing_condition: Attribute.String;
@@ -973,6 +972,7 @@ export interface ApiCaseCase extends Schema.CollectionType {
     height: Attribute.Decimal;
     questionnaire: Attribute.JSON;
     symptoms: Attribute.JSON;
+    email: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
