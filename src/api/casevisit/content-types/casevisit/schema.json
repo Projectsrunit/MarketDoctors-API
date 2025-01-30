@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "casevisits",
+  "info": {
+    "singularName": "casevisit",
+    "pluralName": "casevisits",
+    "displayName": "casevisit"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "existing_condition": {
+      "type": "string"
+    },
+    "current_prescription": {
+      "type": "string"
+    },
+    "chews_notes": {
+      "type": "string"
+    },
+    "weight": {
+      "type": "decimal"
+    },
+    "height": {
+      "type": "decimal"
+    },
+    "symptoms": {
+      "type": "json"
+    },
+    "blood_glucose": {
+      "type": "decimal"
+    },
+    "blood_pressure": {
+      "type": "decimal"
+    },
+    "date": {
+      "type": "date"
+    },
+    "case": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::case.case",
+      "inversedBy": "casevisits"
+    }
+  }
+}
