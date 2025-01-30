@@ -955,7 +955,6 @@ export interface ApiCaseCase extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.user'
     >;
-    date_of_birth: Attribute.Date;
     gender: Attribute.String;
     email: Attribute.String;
     casevisits: Attribute.Relation<
@@ -963,6 +962,7 @@ export interface ApiCaseCase extends Schema.CollectionType {
       'oneToMany',
       'api::casevisit.casevisit'
     >;
+    age: Attribute.Integer;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
@@ -979,12 +979,12 @@ export interface ApiCasevisitCasevisit extends Schema.CollectionType {
     singularName: 'casevisit';
     pluralName: 'casevisits';
     displayName: 'casevisit';
+    description: '';
   };
   options: {
     draftAndPublish: true;
   };
   attributes: {
-    existing_condition: Attribute.String;
     current_prescription: Attribute.String;
     chews_notes: Attribute.String;
     weight: Attribute.Decimal;

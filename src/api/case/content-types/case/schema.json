@@ -27,9 +27,6 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "cases"
     },
-    "date_of_birth": {
-      "type": "date"
-    },
     "gender": {
       "type": "string"
     },
@@ -41,6 +38,9 @@
       "relation": "oneToMany",
       "target": "api::casevisit.casevisit",
       "mappedBy": "case"
+    },
+    "age": {
+      "type": "integer"
     }
   }
 }
