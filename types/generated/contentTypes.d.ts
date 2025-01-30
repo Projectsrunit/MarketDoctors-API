@@ -950,35 +950,68 @@ export interface ApiCaseCase extends Schema.CollectionType {
     first_name: Attribute.String;
     last_name: Attribute.String;
     phone_number: Attribute.String;
-    medical_details: Attribute.JSON;
-    existing_condition: Attribute.String;
-    current_prescription: Attribute.JSON;
-    chews_notes: Attribute.Text;
     chew: Attribute.Relation<
       'api::case.case',
       'manyToOne',
       'plugin::users-permissions.user'
     >;
-    bank_details: Attribute.JSON;
-    qualification_url: Attribute.String;
     date_of_birth: Attribute.Date;
     gender: Attribute.String;
-    home_address: Attribute.String;
-    nearest_bus_stop: Attribute.String;
-    blood_pressure: Attribute.Decimal;
-    bmi: Attribute.Decimal;
-    blood_glucose: Attribute.Decimal;
-    weight: Attribute.Decimal;
-    height: Attribute.Decimal;
-    questionnaire: Attribute.JSON;
-    symptoms: Attribute.JSON;
     email: Attribute.String;
+    casevisits: Attribute.Relation<
+      'api::case.case',
+      'oneToMany',
+      'api::casevisit.casevisit'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<'api::case.case', 'oneToOne', 'admin::user'> &
       Attribute.Private;
     updatedBy: Attribute.Relation<'api::case.case', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiCasevisitCasevisit extends Schema.CollectionType {
+  collectionName: 'casevisits';
+  info: {
+    singularName: 'casevisit';
+    pluralName: 'casevisits';
+    displayName: 'casevisit';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    existing_condition: Attribute.String;
+    current_prescription: Attribute.String;
+    chews_notes: Attribute.String;
+    weight: Attribute.Decimal;
+    height: Attribute.Decimal;
+    symptoms: Attribute.JSON;
+    blood_glucose: Attribute.Decimal;
+    blood_pressure: Attribute.Decimal;
+    date: Attribute.Date;
+    case: Attribute.Relation<
+      'api::casevisit.casevisit',
+      'manyToOne',
+      'api::case.case'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::casevisit.casevisit',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::casevisit.casevisit',
+      'oneToOne',
+      'admin::user'
+    > &
       Attribute.Private;
   };
 }
@@ -1222,6 +1255,7 @@ declare module '@strapi/types' {
       'api::appointment.appointment': ApiAppointmentAppointment;
       'api::availability.availability': ApiAvailabilityAvailability;
       'api::case.case': ApiCaseCase;
+      'api::casevisit.casevisit': ApiCasevisitCasevisit;
       'api::health-tip.health-tip': ApiHealthTipHealthTip;
       'api::hospital.hospital': ApiHospitalHospital;
       'api::message.message': ApiMessageMessage;
