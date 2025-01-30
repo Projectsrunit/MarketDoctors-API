@@ -7,7 +7,7 @@
 module.exports = {
   add: async (ctx) => {
     try {
-      const { caseData, visitData } = ctx.request.body;
+      const { caseData, visitData } = ctx.request.body.data;
       console.log('Inside case add. Data is', caseData, visitData);
 
       const newCase = await strapi.entityService.create('api::case.case', {
@@ -39,7 +39,7 @@ module.exports = {
 
   edit: async (ctx) => {
     try {
-      const { visitData } = ctx.request.body; 
+      const { visitData } = ctx.request.body.data; 
       
       const updatedCaseVisits = await Promise.all(
         Object.keys(visitData).map(async (visitId) => {
