@@ -119,9 +119,6 @@
       "target": "api::payment.payment",
       "mappedBy": "user"
     },
-    "otpCode": {
-      "type": "string"
-    },
     "consultation_fee": {
       "type": "biginteger"
     },
@@ -131,6 +128,12 @@
     },
     "languages": {
       "type": "string"
+    },
+    "otp": {
+      "type": "string"
+    },
+    "otpExpiry": {
+      "type": "datetime"
     }
   }
 }

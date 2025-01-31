@@ -9891,6 +9891,7 @@ __metadata:
     "@types/react": "npm:^19.0.6"
     bcrypt: "npm:^5.1.1"
     better-sqlite3: "npm:^11.7.2"
+    nodemailer: "npm:^6.10.0"
     pg: "npm:^8.13.1"
     react: "npm:^18.0.0"
     react-dom: "npm:^18.0.0"
@@ -10559,6 +10560,13 @@ __metadata:
   dependencies:
     nodemailer-fetch: "npm:1.6.0"
   checksum: 10/7aa7ee43f0426fda659e78837559a4363f42422dcdaba98d67ab25da7a55876741f38bac09bdabca29e3a812e5a22d16d7c54d42fe745faf62a4c73241c46345
+  languageName: node
+  linkType: hard
+
+"nodemailer@npm:^6.10.0":
+  version: 6.10.0
+  resolution: "nodemailer@npm:6.10.0"
+  checksum: 10/2e28961c264501e2621860d912e1ab59788825c5aea5ce71041c5b5b52c7470b63e7ab290003d755f647f25048552c6eec256f468292f454d4d6a68c93dd0659
   languageName: node
   linkType: hard
 

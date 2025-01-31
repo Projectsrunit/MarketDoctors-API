@@ -800,10 +800,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::payment.payment'
     >;
-    otpCode: Attribute.String;
     consultation_fee: Attribute.BigInteger;
     confirmed: Attribute.Boolean & Attribute.DefaultTo<false>;
     languages: Attribute.String;
+    otp: Attribute.String;
+    otpExpiry: Attribute.DateTime;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
