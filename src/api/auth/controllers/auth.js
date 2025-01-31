@@ -209,6 +209,7 @@ module.exports = {
       email: user.email,
       dateOfBirth: user.dateOfBirth,
       role: user.role,
+      confirmed: user.confirmed,
     };
 
     return ctx.send({
