@@ -158,7 +158,6 @@ module.exports = {
       // Update user to confirmed status
       await strapi.entityService.update('plugin::users-permissions.user', user.id, {
         data: {
-          confirmed: true,
           otp: null,
           otpExpiry: null
         }
