@@ -18,23 +18,8 @@
     "last_name": {
       "type": "string"
     },
-    "email": {
-      "type": "email"
-    },
     "phone_number": {
       "type": "string"
-    },
-    "medical_details": {
-      "type": "json"
-    },
-    "existing_condition": {
-      "type": "string"
-    },
-    "current_prescription": {
-      "type": "json"
-    },
-    "chews_notes": {
-      "type": "text"
     },
     "chew": {
       "type": "relation",
@@ -42,41 +27,20 @@
       "target": "plugin::users-permissions.user",
       "inversedBy": "cases"
     },
-    "bank_details": {
-      "type": "json"
-    },
-    "qualification_url": {
-      "type": "string"
-    },
-    "date_of_birth": {
-      "type": "date"
-    },
     "gender": {
       "type": "string"
     },
-    "home_address": {
+    "email": {
       "type": "string"
     },
-    "nearest_bus_stop": {
-      "type": "string"
+    "casevisits": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::casevisit.casevisit",
+      "mappedBy": "case"
     },
-    "blood_pressure": {
-      "type": "decimal"
-    },
-    "bmi": {
-      "type": "decimal"
-    },
-    "blood_glucose": {
-      "type": "decimal"
-    },
-    "weight": {
-      "type": "decimal"
-    },
-    "height": {
-      "type": "decimal"
-    },
-    "questionnaire": {
-      "type": "json"
+    "age": {
+      "type": "integer"
     }
   }
 }

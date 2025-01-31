@@ -32,11 +32,13 @@ module.exports = {
 
       socket.on('authenticate', async (data) => {
         const { own_id, message_dates } = data;
+        // console.log('someone authenticated with id', own_id, 'and message_dates:', message_dates)
         if (own_id) {
           strapi.io.connectedClients.set(own_id, socket);
 
           try {
             const messagesRefined = []
+
             for (let other_id in message_dates) {
               const newerMessages = await strapi.db.query('api::message.message').findMany({
                 where: {
@@ -60,6 +62,41 @@ module.exports = {
                 messagesRefined.push(message);
               });
             }
+
+            const messageDatesKeys = Object.keys(message_dates);
+
+            const unknownNewerMessages = await strapi.db.query('api::message.message').findMany({
+              where: {
+                $or: [
+                  {
+                    $and: [
+                      { sender: own_id },
+                      { receiver: { $notIn: messageDatesKeys } }
+                    ]
+                  },
+                  {
+                    $and: [
+                      { sender: { $notIn: messageDatesKeys } },
+                      { receiver: own_id }
+                    ]
+                  }
+                ]
+              },
+              populate: true
+            });
+            
+            unknownNewerMessages.forEach(message => {
+              message = JSON.parse(JSON.stringify(message))
+              if (!message.sender || !message.receiver) return
+
+              message.sender = message.sender.id;
+              message.receiver = message.receiver.id;
+
+              if (message.createdBy) delete message.createdBy
+              if (message.updatedBy) delete message.updatedBy
+              messagesRefined.push(message);
+            });
+
             socket.emit('catch_up_db', messagesRefined);
           } catch (error) {
             console.error(`Error fetching newer messages for user ${own_id}:`, error);

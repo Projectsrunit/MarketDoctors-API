@@ -19,12 +19,15 @@
     "bcrypt": "^5.1.1",
     "better-sqlite3": "^11.7.2",
     "nodemailer": "^6.10.0",
+    "firebase": "^11.2.0",
+    "firebase-admin": "^13.0.2",
     "pg": "^8.13.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-is": "^19.0.0",
     "react-router-dom": "5.3.4",
     "socket.io": "^4.8.0",
+    "stream-to-buffer": "^0.1.0",
     "styled-components": "5.3.3"
   },
   "author": {
@@ -38,5 +41,6 @@
     "npm": "^10.0.0",
     "yarn": "1.22.x"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
