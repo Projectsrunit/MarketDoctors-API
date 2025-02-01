@@ -4,12 +4,32 @@
 const { ApplicationError, ValidationError } = require('@strapi/utils').errors;
 const nodemailer = require('nodemailer');
 
-// Create a transporter using Gmail (you can change this to your preferred email service)
+// Create a transporter using cPanel SMTP
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'mail.marketdoctors.com.ng',  // Just the mail server hostname
+  port: 465,
+  secure: true, // true for 465 (SSL)
   auth: {
-    user: 'arafats144@gmail.com', // Replace with your email
-    pass: 'zvsg ntyl joaj ptxv' // Replace with your app password
+    user: 'tech@marketdoctors.com.ng', // Changed from username to user
+    pass: 'Crested01.$'  // Changed from password to pass
+  },
+
+
+  tls: {
+    rejectUnauthorized: false
+  },
+  // Add these options for better debugging
+  debug: true,
+  logger: true,
+
+});
+
+// Verify transporter connection
+transporter.verify(function(error, success) {
+  if (error) {
+    console.log('SMTP connection error:', error);
+  } else {
+    console.log('SMTP server is ready to take our messages');
   }
 });
 
@@ -58,12 +78,13 @@ module.exports = {
 
       // Create email content
       const mailOptions = {
-        from: 'arafats144@gmail.com', // Replace with your email
+        from: '"Market Doctors" <tech@marketdoctors.com.ng>',
         to: email,
         subject: 'Your Market Doctor Registration OTP',
         html: `
+
           <h1>Welcome to Market Doctor</h1>
-          <p>Hello ${firstName},</p>
+          <p>Hello <strong>${firstName}</strong>,</p>
           <p>Your OTP for registration is: <strong>${otp}</strong></p>
           <p>This OTP will expire in 10 minutes.</p>
           <p>If you didn't request this, please ignore this email.</p>
