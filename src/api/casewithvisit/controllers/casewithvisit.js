@@ -7,43 +7,44 @@ const { createCoreController } = require('@strapi/strapi').factories;
  * A set of functions called "actions" for `casewithvisit`
  */
 
-module.exports = createCoreController('api::casewithvisit.casewithvisit', ({ strapi }) => ({
-  async create(ctx) {
+module.exports = {
+  // Find method
+  async find(ctx) {
     try {
-      // Get the data from the request body
-      const { data } = ctx.request.body;
-
-      // Add publishedAt date to automatically publish the entry
-      const dataToCreate = {
-        ...data,
-        publishedAt: new Date()  // This will publish the entry immediately
-      };
-
-      // Create the entry with the modified data
-      const response = await super.create({
-        ...ctx,
-        request: {
-          ...ctx.request,
-          body: { data: dataToCreate }
-        }
+      const entities = await strapi.entityService.findMany('api::casewithvisit.casewithvisit', {
+        ...ctx.query
       });
-
-      return response;
+      return { data: entities };
     } catch (error) {
-      console.error('Error creating case with visit:', error);
       ctx.throw(500, error);
     }
   },
 
-  add: async (ctx) => {
+  // Create method
+  async create(ctx) {
+    try {
+      const { data } = ctx.request.body;
+      const entity = await strapi.entityService.create('api::casewithvisit.casewithvisit', {
+        data: {
+          ...data,
+          publishedAt: new Date()
+        }
+      });
+      return { data: entity };
+    } catch (error) {
+      ctx.throw(500, error);
+    }
+  },
+
+  // Add method for case and visit
+  async add(ctx) {
     try {
       const { caseData, visitData } = ctx.request.body.data;
-      console.log('Inside case add. Data is', caseData, visitData);
 
       const newCase = await strapi.entityService.create('api::case.case', {
         data: { 
           ...caseData,
-          publishedAt: new Date() // Add this to publish case immediately
+          publishedAt: new Date()
         },
       });
 
@@ -51,29 +52,26 @@ module.exports = createCoreController('api::casewithvisit.casewithvisit', ({ str
         data: {
           ...visitData,
           case: newCase.id,
-          publishedAt: new Date() // Add this to publish case visit immediately
+          publishedAt: new Date()
         },
       });
-      console.log('New case and visit created')
 
-      ctx.body = {
-        message: 'Case and case visit successfully created',
-        case: newCase,
-        caseVisit: newCaseVisit,
+      return {
+        data: {
+          message: 'Case and case visit successfully created',
+          case: newCase,
+          caseVisit: newCaseVisit,
+        }
       };
     } catch (error) {
-      ctx.status = 400;
-      console.error(error);
-      ctx.body = {
-        message: 'An error occurred while creating case and case visit',
-        error: error.message,
-      };
+      ctx.throw(400, error);
     }
   },
 
-  edit: async (ctx) => {
+  // Edit method for case visits
+  async edit(ctx) {
     try {
-      const { visitData } = ctx.request.body.data; 
+      const { visitData } = ctx.request.body.data;
       
       const updatedCaseVisits = await Promise.all(
         Object.keys(visitData).map(async (visitId) => {
@@ -86,42 +84,34 @@ module.exports = createCoreController('api::casewithvisit.casewithvisit', ({ str
         })
       );
 
-      ctx.body = {
-        message: 'Case visit(s) successfully updated',
-        caseVisits: updatedCaseVisits,
+      return {
+        data: {
+          message: 'Case visit(s) successfully updated',
+          caseVisits: updatedCaseVisits,
+        }
       };
     } catch (error) {
-      ctx.status = 400;
-      console.error(error);
-      ctx.body = {
-        message: 'An error occurred while updating case visit',
-        error: error.message,
-      };
+      ctx.throw(400, error);
     }
   },
 
-  // Method to update and publish existing records
+  // Update method
   async update(ctx) {
     try {
+      const { id } = ctx.params;
       const { data } = ctx.request.body;
-      const dataToUpdate = {
-        ...data,
-        publishedAt: new Date()
-      };
-
-      const response = await super.update({
-        ...ctx,
-        request: {
-          ...ctx.request,
-          body: { data: dataToUpdate }
+      
+      const entity = await strapi.entityService.update('api::casewithvisit.casewithvisit', id, {
+        data: {
+          ...data,
+          publishedAt: new Date()
         }
       });
-
-      return response;
+      
+      return { data: entity };
     } catch (error) {
-      console.error('Error updating case with visit:', error);
       ctx.throw(500, error);
     }
   }
-}));
+};
 
