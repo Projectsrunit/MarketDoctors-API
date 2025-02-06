@@ -387,5 +387,118 @@ module.exports = {
       console.error('Error approving user:', error);
       ctx.throw(400, error);
     }
+  },
+
+  // Count users by role
+  async countByRole(ctx) {
+    try {
+      // Get all users with their roles
+      const users = await strapi.entityService.findMany('plugin::users-permissions.user', {
+        populate: ['role']
+      });
+
+      // Initialize counters
+      const counts = {
+        doctors: 0,
+        chews: 0,
+        patients: 0
+      };
+
+      // Count users by role
+      users.forEach(user => {
+        if (user.role) {
+          switch (user.role.id) {
+            case 3: // Doctor role ID
+              counts.doctors++;
+              break;
+            case 4: // CHEW role ID
+              counts.chews++;
+              break;
+            case 5: // Patient role ID
+              counts.patients++;
+              break;
+          }
+        }
+      });
+
+      return ctx.send(counts);
+    } catch (error) {
+      console.error('Error counting users by role:', error);
+      return ctx.throw(500, 'Failed to count users by role');
+    }
+  },
+
+  // Send notifications to user groups
+  async sendNotification(ctx) {
+    try {
+      const { segment, title, message } = ctx.request.body;
+
+      if (!segment || !title || !message) {
+        return ctx.badRequest('Missing required fields');
+      }
+
+      // Get role ID based on segment
+      let roleId;
+      switch (segment) {
+        case 'doctor':
+          roleId = 3;
+          break;
+        case 'chew':
+          roleId = 4;
+          break;
+        case 'patient':
+          roleId = 5;
+          break;
+        default:
+          return ctx.badRequest('Invalid segment');
+      }
+
+      // Get all users in the specified role
+      const users = await strapi.entityService.findMany('plugin::users-permissions.user', {
+        filters: {
+          role: roleId
+        }
+      });
+
+      // Send email to each user in the group
+      const emailPromises = users.map(user => {
+        const mailOptions = {
+          from: `"Market Doctors" <${process.env.SMTP_USER}>`,
+          to: user.email,
+          subject: title,
+          html: `
+            <h1>${title}</h1>
+            <p>Dear ${user.firstName},</p>
+            <p>${message}</p>
+            <p>Best regards,<br>The Market Doctor Team</p>
+          `
+        };
+
+        return transporter.sendMail(mailOptions);
+      });
+
+      // Wait for all emails to be sent
+      await Promise.all(emailPromises);
+
+      // Save notification to database (optional)
+      await strapi.entityService.create('api::notification.notification', {
+        data: {
+          title,
+          message,
+          segment,
+          sent_at: new Date(),
+          publishedAt: new Date()
+        }
+      });
+
+      return ctx.send({
+        message: `Notification sent successfully to ${users.length} ${segment}(s)`,
+        recipients: users.length
+      });
+
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      return ctx.throw(500, 'Failed to send notification');
+    }
   }
 };

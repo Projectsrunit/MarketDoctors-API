@@ -34,6 +34,23 @@ module.exports = {
         policies: ['admin::isAuthenticatedAdmin'], // Ensure only admins can approve
         middlewares: [],
       },
+    },
+    {
+      method: 'GET',
+      path: '/users/count-by-role',
+      handler: 'auth.countByRole',
+      config: {
+        auth: false,
+      },
+    },
+    {
+      method: 'POST',
+      path: '/notifications/send',
+      handler: 'auth.sendNotification',
+      config: {
+         // Only admins can send notifications
+         auth: false,
+      },
     }
   ],
 };
