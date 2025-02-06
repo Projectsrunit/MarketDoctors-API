@@ -18,31 +18,28 @@ const transporter = nodemailer.createTransport({
 });
 
 module.exports = (plugin) => {
-  const sanitizeOutput = (user) => {
-    const {
-      password, resetPasswordToken, confirmationToken, ...sanitizedUser
-    } = user; // be careful, you need to omit other private attributes yourself
-    return sanitizedUser;
-  };
+  // Keep the original plugin functionality
+  const originalBootstrap = plugin.bootstrap;
+  const originalRegister = plugin.register;
 
-  plugin.controllers.user.updateMe = async (ctx) => {
-    // ... your updateMe logic
-  };
+  plugin.bootstrap = async (params) => {
+    // Call the original bootstrap if it exists
+    if (originalBootstrap) {
+      await originalBootstrap(params);
+    }
 
-  // Add the lifecycle hooks before returning the plugin
-  plugin.bootstrap = ({ strapi }) => {
-    strapi.db.lifecycles.subscribe({
+    // Add our lifecycle hooks
+    params.strapi.db.lifecycles.subscribe({
       models: ['plugin::users-permissions.user'],
       async afterUpdate(event) {
         const { result } = event;
         
-        // Check if confirmed status is true
         if (result.confirmed === true) {
           try {
             const mailOptions = {
               from: `"Market Doctors" <${process.env.SMTP_USER}>`,
               to: result.email,
-              subject: 'Your Market Doctors Account Has Been Approved',
+              subject: 'Your Market Doctor Account Has Been Approved',
               html: `
                 <h1>Welcome to Market Doctor!</h1>
                 <p>Dear ${result.firstName},</p>
@@ -65,8 +62,11 @@ module.exports = (plugin) => {
     });
   };
 
-  plugin.controllers.user.find = async (ctx) => {
-    // ... your find logic
+  // Preserve the original register function
+  plugin.register = ({ strapi }) => {
+    if (originalRegister) {
+      originalRegister({ strapi });
+    }
   };
 
   return plugin;
