@@ -140,8 +140,17 @@ module.exports = {
         nearest_bus_stop: newUser.nearest_bus_stop,
       };
 
+      // After creating the user, notify admin
+      try {
+        await this.notifyAdmin(newUser);
+        console.log('Admin notification sent');
+      } catch (notifyError) {
+        console.error('Failed to send admin notification:', notifyError);
+        // Continue with registration even if notification fails
+      }
+
       return ctx.send({
-        message: 'OTP sent successfully',
+        message: 'User registered successfully. Waiting for admin approval.',
         user: sanitizedUser
       });
 
@@ -293,4 +302,95 @@ module.exports = {
       user,
     });
   },
+
+  // Send email to admin when new user registers
+  async notifyAdmin(user) {
+    try {
+      // First get the complete user data with role populated
+      const fullUserData = await strapi.entityService.findOne('plugin::users-permissions.user', user.id, {
+        populate: ['role']
+      });
+
+      const mailOptions = {
+        from: '"Market Doctor" <tech@marketdoctors.com.ng>',
+        to: 'arafats144@gmail.com',
+        subject: 'New User Registration Requires Approval',
+        html: `
+          <h1>New User Registration</h1>
+          <p>A new user has registered and requires approval:</p>
+          <ul>
+            <li><strong>Name:</strong> ${fullUserData.firstName} ${fullUserData.lastName}</li>
+            <li><strong>Email:</strong> ${fullUserData.email}</li>
+            <li><strong>Role:</strong> ${fullUserData.role ? fullUserData.role.name : 'Not specified'}</li>
+            <li><strong>Phone:</strong> ${fullUserData.phone || 'Not provided'}</li>
+          </ul>
+          <p>Please login to the admin panel to approve or reject this user.</p>
+          <a href="https://admin.marketdoctors.com.ng/users" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+            Go to Admin Panel
+          </a>
+        `
+      };
+
+      const result = await transporter.sendMail(mailOptions);
+      console.log('Admin notification email sent successfully:', result);
+    } catch (error) {
+      console.error('Error sending admin notification:', error);
+      // Log more details about the error
+      if (error.response) {
+        console.error('SMTP Response:', error.response);
+      }
+    }
+  },
+
+  // Send approval email to user
+  async sendApprovalEmail(user) {
+    try {
+      const mailOptions = {
+        from: '"Market Doctor" <tech@marketdoctors.com.ng>',
+        to: user.email,
+        subject: 'Your Market Doctor Account Has Been Approved',
+        html: `
+          <h1>Welcome to Market Doctor!</h1>
+          <p>Dear ${user.firstName},</p>
+          <p>Your account has been approved by our administrators. You can now log in to your account and start using our services.</p>
+          <a href="https://marketdoctors.com.ng/login" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+            Login Now
+          </a>
+          <p>If you have any questions, please don't hesitate to contact our support team.</p>
+          <p>Best regards,<br>The Market Doctor Team</p>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log('User approval email sent successfully');
+    } catch (error) {
+      console.error('Error sending approval email:', error);
+    }
+  },
+
+  // Add new endpoint for admin to approve users
+  async approveUser(ctx) {
+    try {
+      const { id } = ctx.params;
+
+      // Update user status
+      const updatedUser = await strapi.entityService.update('plugin::users-permissions.user', id, {
+        data: {
+          confirmed: true,
+          blocked: false
+        }
+      });
+
+      // Send approval email to user
+      await this.sendApprovalEmail(updatedUser);
+
+      return ctx.send({
+        message: 'User approved successfully',
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error('Error approving user:', error);
+      ctx.throw(400, error);
+    }
+  }
 };

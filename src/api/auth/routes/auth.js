@@ -26,5 +26,14 @@ module.exports = {
         auth: false, // OTP verification doesn't require authentication
       },
     },
+    {
+      method: 'PUT',
+      path: '/auth/approve-user/:id',
+      handler: 'auth.approveUser',
+      config: {
+        policies: ['admin::isAuthenticatedAdmin'], // Ensure only admins can approve
+        middlewares: [],
+      },
+    }
   ],
 };
