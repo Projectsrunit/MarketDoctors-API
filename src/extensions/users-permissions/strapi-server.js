@@ -1,15 +1,16 @@
+// @ts-nocheck
 'use strict';
 
 const nodemailer = require('nodemailer');
 
-// Create transporter (use your existing nodemailer config)
+// Create transporter using env variables
 const transporter = nodemailer.createTransport({
-  host: 'mail.marketdoctors.com.ng',
-  port: 465,
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
   secure: true,
   auth: {
-    user: 'tech@marketdoctors.com.ng',
-    pass: 'Crested01.$'
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
   },
   tls: {
     rejectUnauthorized: false
@@ -39,7 +40,7 @@ module.exports = (plugin) => {
         if (result.confirmed === true) {
           try {
             const mailOptions = {
-              from: '"Market Doctors" <tech@marketdoctors.com.ng>',
+              from: `"Market Doctors" <${process.env.SMTP_USER}>`,
               to: result.email,
               subject: 'Your Market Doctors Account Has Been Approved',
               html: `
@@ -52,7 +53,6 @@ module.exports = (plugin) => {
                 <p>If you have any questions, please don't hesitate to contact our support team on +234 906 522 6485</p>
                 <p>Best regards,<br>The Market Doctors Team</p>
               `
-
             };
 
             await transporter.sendMail(mailOptions);

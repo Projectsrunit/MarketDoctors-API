@@ -6,22 +6,19 @@ const nodemailer = require('nodemailer');
 
 // Create a transporter using cPanel SMTP
 const transporter = nodemailer.createTransport({
-  host: 'mail.marketdoctors.com.ng',  // Just the mail server hostname
-  port: 465,
-  secure: true, // true for 465 (SSL)
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
+  secure: true,
   auth: {
-    user: 'tech@marketdoctors.com.ng', // Changed from username to user
-    pass: 'Crested01.$'  // Changed from password to pass
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
   },
-
-
   tls: {
     rejectUnauthorized: false
   },
   // Add these options for better debugging
   debug: true,
   logger: true,
-
 });
 
 // Verify transporter connection
@@ -78,7 +75,7 @@ module.exports = {
 
       // Create email content
       const mailOptions = {
-        from: '"Market Doctors" <tech@marketdoctors.com.ng>',
+        from: `"Market Doctors" <${process.env.SMTP_USER}>`,
         to: email,
         subject: 'Your Market Doctor Registration OTP',
         html: `
@@ -306,18 +303,16 @@ module.exports = {
   // Send email to admin when new user registers
   async notifyAdmin(user) {
     try {
-      // First get the complete user data with role populated
       const fullUserData = await strapi.entityService.findOne('plugin::users-permissions.user', user.id, {
         populate: ['role']
       });
 
       const mailOptions = {
-        from: '"Market Doctors" <tech@marketdoctors.com.ng>',
-        to: 'tech@marketdoctors.com.ng',
+        from: `"Market Doctors" <${process.env.SMTP_USER}>`,
+        to: process.env.ADMIN_EMAIL,
         subject: 'New User Registration Requires Approval',
         html: `
           <h1>New User Registration</h1>
-
           <p>A new user has registered and requires approval:</p>
           <ul>
             <li><strong>Name:</strong> ${fullUserData.firstName} ${fullUserData.lastName}</li>
@@ -336,7 +331,6 @@ module.exports = {
       console.log('Admin notification email sent successfully:', result);
     } catch (error) {
       console.error('Error sending admin notification:', error);
-      // Log more details about the error
       if (error.response) {
         console.error('SMTP Response:', error.response);
       }
@@ -347,7 +341,7 @@ module.exports = {
   async sendApprovalEmail(user) {
     try {
       const mailOptions = {
-        from: '"Market Doctors" <tech@marketdoctors.com.ng>',
+        from: `"Market Doctors" <${process.env.SMTP_USER}>`,
         to: user.email,
         subject: 'Your Market Doctors Account Has Been Approved',
         html: `
