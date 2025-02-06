@@ -524,5 +524,82 @@ module.exports = {
         details: error.message
       });
     }
+  },
+
+  // Send notification to individual user
+  async sendIndividualNotification(ctx) {
+    try {
+      const { email, title, message } = ctx.request.body;
+
+      // Validate required fields
+      if (!email || !title || !message) {
+        return ctx.badRequest('Missing required fields: email, title, or message');
+      }
+
+      // Verify that the user exists
+      const user = await strapi.entityService.findMany('plugin::users-permissions.user', {
+        filters: {
+          email: email
+        }
+      });
+
+      if (!user || user.length === 0) {
+        return ctx.badRequest('User not found with the provided email');
+      }
+
+      try {
+        // Send the email
+        const mailOptions = {
+          from: `"Market Doctors" <${process.env.SMTP_USER}>`,
+          to: email,
+          subject: title,
+          html: `
+            <h1>${title}</h1>
+            <p>Dear ${user[0].firstName},</p>
+            <p>${message}</p>
+            <p>Best regards,<br>The Market Doctor Team</p>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        // Save notification to database
+        try {
+          await strapi.entityService.create('api::notification.notification', {
+            data: {
+              title,
+              message,
+              segment: 'individual',
+              recipient: email,
+              sent_at: new Date(),
+              publishedAt: new Date()
+            }
+          });
+        } catch (dbError) {
+          console.error('Failed to save notification to database:', dbError);
+          // Continue even if database save fails
+        }
+
+        return ctx.send({
+          success: true,
+          message: 'Notification sent successfully',
+          recipient: email
+        });
+
+      } catch (emailError) {
+        console.error('Failed to send email:', emailError);
+        return ctx.throw(500, {
+          message: 'Failed to send email',
+          details: emailError.message
+        });
+      }
+
+    } catch (error) {
+      console.error('Error in sendIndividualNotification:', error);
+      return ctx.throw(500, {
+        message: 'Failed to process notification',
+        details: error.message
+      });
+    }
   }
 };

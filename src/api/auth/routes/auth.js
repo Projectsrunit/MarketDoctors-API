@@ -51,6 +51,14 @@ module.exports = {
          // Only admins can send notifications
          auth: false,
       },
+    },
+    {
+      method: 'POST',
+      path: '/notifications/send-individual',
+      handler: 'auth.sendIndividualNotification',
+      config: {
+        auth: false,
+      },
     }
   ],
 };
