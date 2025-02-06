@@ -460,6 +460,12 @@ module.exports = {
         }
       });
 
+      if (!users || users.length === 0) {
+        return ctx.badRequest(`No users found in the ${segment} group`);
+      }
+
+      console.log(`Found ${users.length} users in ${segment} group`);
+
       // Send email to each user in the group
       const emailPromises = users.map(user => {
         const mailOptions = {
@@ -474,31 +480,49 @@ module.exports = {
           `
         };
 
-        return transporter.sendMail(mailOptions);
+        return transporter.sendMail(mailOptions)
+          .catch(error => {
+            console.error(`Failed to send email to ${user.email}:`, error);
+            return null; // Continue with other emails even if one fails
+          });
       });
 
       // Wait for all emails to be sent
-      await Promise.all(emailPromises);
+      const results = await Promise.all(emailPromises);
+      const successfulSends = results.filter(result => result !== null).length;
 
-      // Save notification to database (optional)
-      await strapi.entityService.create('api::notification.notification', {
-        data: {
-          title,
-          message,
-          segment,
-          sent_at: new Date(),
-          publishedAt: new Date()
+      // Save notification to database
+      try {
+        await strapi.entityService.create('api::notification.notification', {
+          data: {
+            title,
+            message,
+            segment,
+            sent_at: new Date(),
+            publishedAt: new Date()
+          }
+        });
+      } catch (dbError) {
+        console.error('Failed to save notification to database:', dbError);
+        // Continue even if database save fails
+      }
+
+      return ctx.send({
+        success: true,
+        message: `Notification sent successfully to ${successfulSends} out of ${users.length} ${segment}(s)`,
+        recipients: {
+          total: users.length,
+          successful: successfulSends,
+          failed: users.length - successfulSends
         }
       });
 
-      return ctx.send({
-        message: `Notification sent successfully to ${users.length} ${segment}(s)`,
-        recipients: users.length
-      });
-
     } catch (error) {
-      console.error('Error sending notification:', error);
-      return ctx.throw(500, 'Failed to send notification');
+      console.error('Error in sendNotification:', error);
+      return ctx.throw(500, {
+        message: 'Failed to send notification',
+        details: error.message
+      });
     }
   }
 };
