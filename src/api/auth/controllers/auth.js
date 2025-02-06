@@ -312,11 +312,12 @@ module.exports = {
       });
 
       const mailOptions = {
-        from: '"Market Doctor" <tech@marketdoctors.com.ng>',
-        to: 'arafats144@gmail.com',
+        from: '"Market Doctors" <tech@marketdoctors.com.ng>',
+        to: 'tech@marketdoctors.com.ng',
         subject: 'New User Registration Requires Approval',
         html: `
           <h1>New User Registration</h1>
+
           <p>A new user has registered and requires approval:</p>
           <ul>
             <li><strong>Name:</strong> ${fullUserData.firstName} ${fullUserData.lastName}</li>
@@ -325,7 +326,7 @@ module.exports = {
             <li><strong>Phone:</strong> ${fullUserData.phone || 'Not provided'}</li>
           </ul>
           <p>Please login to the admin panel to approve or reject this user.</p>
-          <a href="https://admin.marketdoctors.com.ng/users" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+          <a href="https://walrus-app-ve54y.ondigitalocean.app" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
             Go to Admin Panel
           </a>
         `
@@ -346,18 +347,18 @@ module.exports = {
   async sendApprovalEmail(user) {
     try {
       const mailOptions = {
-        from: '"Market Doctor" <tech@marketdoctors.com.ng>',
+        from: '"Market Doctors" <tech@marketdoctors.com.ng>',
         to: user.email,
-        subject: 'Your Market Doctor Account Has Been Approved',
+        subject: 'Your Market Doctors Account Has Been Approved',
         html: `
           <h1>Welcome to Market Doctor!</h1>
           <p>Dear ${user.firstName},</p>
-          <p>Your account has been approved by our administrators. You can now log in to your account and start using our services.</p>
-          <a href="https://marketdoctors.com.ng/login" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+          <p>Your account has been approved by our administrators. You can now log in to your account on the App and start using our services.</p>
+          <a href="https://play.google.com/store/apps/details?id=com.market_doctor&hl=en" style="padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
             Login Now
           </a>
-          <p>If you have any questions, please don't hesitate to contact our support team.</p>
-          <p>Best regards,<br>The Market Doctor Team</p>
+          <p>If you have any questions, please don't hesitate to contact our support team on +234 906 522 6485</p>
+          <p>Best regards,<br>The Market Doctors Team</p>
         `
       };
 
