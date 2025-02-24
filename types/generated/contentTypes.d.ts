@@ -805,6 +805,7 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     languages: Attribute.String;
     otp: Attribute.String;
     otpExpiry: Attribute.DateTime;
+    onesignal_player_id: Attribute.String;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1128,6 +1129,46 @@ export interface ApiMessageMessage extends Schema.CollectionType {
   };
 }
 
+export interface ApiNotificationNotification extends Schema.CollectionType {
+  collectionName: 'notifications';
+  info: {
+    singularName: 'notification';
+    pluralName: 'notifications';
+    displayName: 'Notifications';
+    description: 'System notifications';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String & Attribute.Required;
+    message: Attribute.Text & Attribute.Required;
+    segment: Attribute.Enumeration<
+      ['doctor', 'chew', 'patient', 'individual']
+    > &
+      Attribute.Required;
+    recipient: Attribute.Email;
+    sent_at: Attribute.DateTime;
+    status: Attribute.Enumeration<['sent', 'failed']> &
+      Attribute.DefaultTo<'sent'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::notification.notification',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface ApiPaymentPayment extends Schema.CollectionType {
   collectionName: 'payments';
   info: {
@@ -1260,6 +1301,7 @@ declare module '@strapi/types' {
       'api::health-tip.health-tip': ApiHealthTipHealthTip;
       'api::hospital.hospital': ApiHospitalHospital;
       'api::message.message': ApiMessageMessage;
+      'api::notification.notification': ApiNotificationNotification;
       'api::payment.payment': ApiPaymentPayment;
       'api::pharmacy.pharmacy': ApiPharmacyPharmacy;
       'api::qualification.qualification': ApiQualificationQualification;

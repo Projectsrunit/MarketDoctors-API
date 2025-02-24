@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "notifications",
+  "info": {
+    "singularName": "notification",
+    "pluralName": "notifications",
+    "displayName": "Notifications",
+    "description": "System notifications"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "message": {
+      "type": "text",
+      "required": true
+    },
+    "segment": {
+      "type": "enumeration",
+      "enum": ["doctor", "chew", "patient", "individual"],
+      "required": true
+    },
+    "recipient": {
+      "type": "email"
+    },
+    "sent_at": {
+      "type": "datetime"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["sent", "failed"],
+      "default": "sent"
+    }
+  }
+} 

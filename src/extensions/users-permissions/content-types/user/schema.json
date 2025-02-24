@@ -134,6 +134,10 @@
     },
     "otpExpiry": {
       "type": "datetime"
+    },
+    "onesignal_player_id": {
+      "type": "string",
+      "description": "OneSignal Player ID for push notifications"
     }
   }
 }

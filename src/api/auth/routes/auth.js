@@ -59,6 +59,14 @@ module.exports = {
       config: {
         auth: false,
       },
+    },
+    {
+      method: 'POST',
+      path: '/notifications/update-player-id',
+      handler: 'auth.updatePlayerID',
+      config: {
+        auth: false,
+      },
     }
   ],
 };

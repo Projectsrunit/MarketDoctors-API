@@ -487,6 +487,19 @@ module.exports = {
           });
       });
 
+      // Send push notification to the segment
+      let pushStatus = 'sent';
+      try {
+        const pushResult = await strapi.service('api::notification.onesignal').sendToSegment(segment, title, message);
+        if (!pushResult) {
+          pushStatus = 'failed';
+          console.log('No push notifications were sent - no valid recipients found');
+        }
+      } catch (pushError) {
+        pushStatus = 'failed';
+        console.error('Failed to send push notification:', pushError);
+      }
+
       // Wait for all emails to be sent
       const results = await Promise.all(emailPromises);
       const successfulSends = results.filter(result => result !== null).length;
@@ -499,17 +512,18 @@ module.exports = {
             message,
             segment,
             sent_at: new Date(),
+            status: pushStatus,
             publishedAt: new Date()
           }
         });
       } catch (dbError) {
         console.error('Failed to save notification to database:', dbError);
-        // Continue even if database save fails
       }
 
       return ctx.send({
         success: true,
         message: `Notification sent successfully to ${successfulSends} out of ${users.length} ${segment}(s)`,
+        push_notification_status: pushStatus,
         recipients: {
           total: users.length,
           successful: successfulSends,
@@ -547,8 +561,11 @@ module.exports = {
         return ctx.badRequest('User not found with the provided email');
       }
 
+      let emailStatus = 'sent';
+      let pushStatus = 'sent';
+
+      // Send the email
       try {
-        // Send the email
         const mailOptions = {
           from: `"Market Doctors" <${process.env.SMTP_USER}>`,
           to: email,
@@ -562,42 +579,77 @@ module.exports = {
         };
 
         await transporter.sendMail(mailOptions);
-
-        // Save notification to database
-        try {
-          await strapi.entityService.create('api::notification.notification', {
-            data: {
-              title,
-              message,
-              segment: 'individual',
-              recipient: email,
-              sent_at: new Date(),
-              publishedAt: new Date()
-            }
-          });
-        } catch (dbError) {
-          console.error('Failed to save notification to database:', dbError);
-          // Continue even if database save fails
-        }
-
-        return ctx.send({
-          success: true,
-          message: 'Notification sent successfully',
-          recipient: email
-        });
-
       } catch (emailError) {
+        emailStatus = 'failed';
         console.error('Failed to send email:', emailError);
-        return ctx.throw(500, {
-          message: 'Failed to send email',
-          details: emailError.message
-        });
       }
+
+      // Send push notification
+      try {
+        const pushResult = await strapi.service('api::notification.onesignal').sendToUserByEmail(email, title, message);
+        if (!pushResult) {
+          pushStatus = 'failed';
+          console.log('Push notification not sent - user has no valid player ID');
+        }
+      } catch (pushError) {
+        pushStatus = 'failed';
+        console.error('Failed to send push notification:', pushError);
+      }
+
+      // Save notification to database
+      try {
+        await strapi.entityService.create('api::notification.notification', {
+          data: {
+            title,
+            message,
+            segment: 'individual',
+            recipient: email,
+            sent_at: new Date(),
+            status: pushStatus,
+            publishedAt: new Date()
+          }
+        });
+      } catch (dbError) {
+        console.error('Failed to save notification to database:', dbError);
+      }
+
+      return ctx.send({
+        success: true,
+        message: 'Notification processed',
+        email_status: emailStatus,
+        push_notification_status: pushStatus,
+        recipient: email
+      });
 
     } catch (error) {
       console.error('Error in sendIndividualNotification:', error);
       return ctx.throw(500, {
         message: 'Failed to process notification',
+        details: error.message
+      });
+    }
+  },
+
+  // Update player ID
+  async updatePlayerID(ctx) {
+    try {
+      const { userId, playerId } = ctx.request.body;
+
+      if (!userId || !playerId) {
+        return ctx.badRequest('Missing required fields: userId, playerId');
+      }
+
+      // Update the user's OneSignal player ID
+      await strapi.service('api::notification.onesignal').updatePlayerID(userId, playerId);
+
+      return ctx.send({
+        success: true,
+        message: 'Player ID updated successfully'
+      });
+    } catch (error) {
+      console.error('Error updating player ID:', error);
+      return ctx.throw(500, {
+        message: 'Failed to update player ID',
         details: error.message
       });
     }
