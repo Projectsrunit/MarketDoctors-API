@@ -22,17 +22,16 @@ module.exports = {
         return null;
       }
 
-      const notification = {
-        app_id: ONESIGNAL_APP_ID,
-        include_player_ids: playerIds,
-        contents: {
-          en: message
-        },
-        headings: {
-          en: title
-        },
-        data: data
+      const notification = new OneSignal.Notification();
+      notification.app_id = ONESIGNAL_APP_ID;
+      notification.include_player_ids = playerIds;
+      notification.contents = {
+        en: message
       };
+      notification.headings = {
+        en: title
+      };
+      notification.data = data;
 
       const response = await client.createNotification(notification);
       return response;
@@ -45,19 +44,18 @@ module.exports = {
   // Send notification to users by segment/role
   async sendToSegment(segment, title, message, data = {}) {
     try {
-      const notification = {
-        app_id: ONESIGNAL_APP_ID,
-        contents: {
-          en: message
-        },
-        headings: {
-          en: title
-        },
-        data: data,
-        filters: [
-          {"field": "tag", "key": "user_type", "relation": "=", "value": segment.toLowerCase()}
-        ]
+      const notification = new OneSignal.Notification();
+      notification.app_id = ONESIGNAL_APP_ID;
+      notification.contents = {
+        en: message
       };
+      notification.headings = {
+        en: title
+      };
+      notification.data = data;
+      notification.filters = [
+        {"field": "tag", "key": "user_type", "relation": "=", "value": segment.toLowerCase()}
+      ];
 
       const response = await client.createNotification(notification);
       return response;
