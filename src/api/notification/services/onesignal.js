@@ -45,24 +45,22 @@ module.exports = {
   // Send notification to users by segment/role
   async sendToSegment(segment, title, message, data = {}) {
     try {
-      // Get all users in the segment with their player IDs
-      const users = await strapi.entityService.findMany('plugin::users-permissions.user', {
-        filters: {
-          role: config.roleIds[segment]
-        }
-      });
+      const notification = {
+        app_id: ONESIGNAL_APP_ID,
+        contents: {
+          en: message
+        },
+        headings: {
+          en: title
+        },
+        data: data,
+        filters: [
+          {"field": "tag", "key": "user_type", "relation": "=", "value": segment.toLowerCase()}
+        ]
+      };
 
-      // Filter out users without player IDs
-      const playerIds = users
-        .filter(user => user.onesignal_player_id)
-        .map(user => user.onesignal_player_id);
-
-      if (playerIds.length === 0) {
-        console.log(`No users with player IDs found in segment ${segment}`);
-        return null;
-      }
-
-      return this.sendToUsers(playerIds, title, message, data);
+      const response = await client.createNotification(notification);
+      return response;
     } catch (error) {
       console.error('OneSignal Error:', error);
       throw error;
