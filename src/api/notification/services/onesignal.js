@@ -4,7 +4,7 @@ const OneSignal = require('@onesignal/node-onesignal');
 
 // TODO: Replace these with environment variables later
 const ONESIGNAL_APP_ID = '69587fc7-f7c9-4119-acf4-c632d8646c01';  // Your OneSignal App ID
-const ONESIGNAL_API_KEY = 'MmNhZjY5ZDAtZjE4Yy00ZjE5LTk5ZDAtZjE4YzRmMTk5ZDAt';  // Your OneSignal REST API Key
+const ONESIGNAL_API_KEY = 'os_v2_app_nfmh7r7xzfartlhuyyznqzdmagengaelwetu37mz3kiisal2uvcoiajbtky4kq7ztwue6nu5ezpr3uwjqz2vnhvlgydpr4paxbqo5ci';
 
 const configuration = OneSignal.createConfiguration({
   userKey: ONESIGNAL_API_KEY,
