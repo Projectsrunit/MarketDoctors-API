@@ -1,10 +1,10 @@
 'use strict';
 
 const OneSignal = require('@onesignal/node-onesignal');
-const config = require('../../../config/onesignal');
 
-const ONESIGNAL_APP_ID = config.appId;
-const ONESIGNAL_API_KEY = config.apiKey;
+// TODO: Replace these with environment variables later
+const ONESIGNAL_APP_ID = '69587fc7-f7c9-4119-acf4-c632d8646c01';  // Your OneSignal App ID
+const ONESIGNAL_API_KEY = 'MmNhZjY5ZDAtZjE4Yy00ZjE5LTk5ZDAtZjE4YzRmMTk5ZDAt';  // Your OneSignal REST API Key
 
 const configuration = OneSignal.createConfiguration({
   userKey: ONESIGNAL_API_KEY,
@@ -22,18 +22,17 @@ module.exports = {
         return null;
       }
 
-      const notification = new OneSignal.Notification();
-      notification.app_id = ONESIGNAL_APP_ID;
-      notification.include_player_ids = playerIds;
-      notification.contents = {
-        en: message
+      const notification = {
+        app_id: ONESIGNAL_APP_ID,
+        include_player_ids: playerIds,
+        contents: { en: message },
+        headings: { en: title },
+        data: data
       };
-      notification.headings = {
-        en: title
-      };
-      notification.data = data;
 
+      console.log('Sending notification:', JSON.stringify(notification));
       const response = await client.createNotification(notification);
+      console.log('OneSignal Response:', JSON.stringify(response));
       return response;
     } catch (error) {
       console.error('OneSignal Error:', error);
@@ -44,20 +43,19 @@ module.exports = {
   // Send notification to users by segment/role
   async sendToSegment(segment, title, message, data = {}) {
     try {
-      const notification = new OneSignal.Notification();
-      notification.app_id = ONESIGNAL_APP_ID;
-      notification.contents = {
-        en: message
+      const notification = {
+        app_id: ONESIGNAL_APP_ID,
+        contents: { en: message },
+        headings: { en: title },
+        data: data,
+        filters: [
+          {"field": "tag", "key": "user_type", "relation": "=", "value": segment.toLowerCase()}
+        ]
       };
-      notification.headings = {
-        en: title
-      };
-      notification.data = data;
-      notification.filters = [
-        {"field": "tag", "key": "user_type", "relation": "=", "value": segment.toLowerCase()}
-      ];
 
+      console.log('Sending segment notification:', JSON.stringify(notification));
       const response = await client.createNotification(notification);
+      console.log('OneSignal Response:', JSON.stringify(response));
       return response;
     } catch (error) {
       console.error('OneSignal Error:', error);
