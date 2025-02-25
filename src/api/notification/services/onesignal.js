@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use strict';
 
 const OneSignal = require('@onesignal/node-onesignal');
