@@ -13,7 +13,21 @@ const createBasicNotification = (title, message, data = {}) => ({
   app_id: ONESIGNAL_APP_ID,
   contents: { en: message },
   headings: { en: title },
-  data: data
+  data: {
+    ...data,
+    route: '/notifications',  // Default route for notifications
+    requiresAuth: true,      // Default to requiring authentication
+    timestamp: new Date().toISOString(),
+    title,
+    message
+  },
+  // Add Android settings
+  android_channel_id: "market_doctors_notifications",
+  android_group: "market_doctors_group",
+  android_group_message: {"en": "You have $[notif_count] new notifications"},
+  // Add iOS settings
+  ios_badgeType: "Increase",
+  ios_badgeCount: 1
 });
 
 module.exports = {
