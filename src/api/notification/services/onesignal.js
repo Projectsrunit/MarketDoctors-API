@@ -1,18 +1,22 @@
 // @ts-nocheck
 'use strict';
 
-const OneSignal = require('@onesignal/node-onesignal');
+const axios = require('axios');
 
 // TODO: Replace these with environment variables later
-const ONESIGNAL_APP_ID = '69587fc7-f7c9-4119-acf4-c632d8646c01';  // Your OneSignal App ID
-const ONESIGNAL_API_KEY = 'os_v2_app_nfmh7r7xzfartlhuyyznqzdmagengaelwetu37mz3kiisal2uvcoiajbtky4kq7ztwue6nu5ezpr3uwjqz2vnhvlgydpr4paxbqo5ci';
+const ONESIGNAL_APP_ID = '69587fc7-f7c9-4119-acf4-c632d8646c01';
+const ONESIGNAL_REST_API_KEY = 'os_v2_app_nfmh7r7xzfartlhuyyznqzdmagengaelwetu37mz3kiisal2uvccv3zcjjrx2xqqtumijiumyjtjzdjfj25col4n7rifi5nlsko6eli';
 
-const configuration = OneSignal.createConfiguration({
-  userKey: ONESIGNAL_API_KEY,
-  appKey: ONESIGNAL_API_KEY
+const ONESIGNAL_API_URL = 'https://onesignal.com/api/v1/notifications';
+
+// Helper function to create basic notification object
+const createBasicNotification = (title, message, data = {}) => ({
+  app_id: ONESIGNAL_APP_ID,
+  contents: { en: message },
+  headings: { en: title },
+  data: data
 });
 
-const client = new OneSignal.DefaultApi(configuration);
 
 module.exports = {
   // Send notification to specific users by their player IDs
@@ -24,19 +28,23 @@ module.exports = {
       }
 
       const notification = {
-        app_id: ONESIGNAL_APP_ID,
-        include_player_ids: playerIds,
-        contents: { en: message },
-        headings: { en: title },
-        data: data
+        ...createBasicNotification(title, message, data),
+        include_player_ids: playerIds
       };
 
       console.log('Sending notification:', JSON.stringify(notification));
-      const response = await client.createNotification(notification);
-      console.log('OneSignal Response:', JSON.stringify(response));
-      return response;
+      
+      const response = await axios.post(ONESIGNAL_API_URL, notification, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ONESIGNAL_REST_API_KEY}`
+        }
+      });
+
+      console.log('OneSignal Response:', JSON.stringify(response.data));
+      return response.data;
     } catch (error) {
-      console.error('OneSignal Error:', error);
+      console.error('OneSignal Error:', error.response?.data || error.message);
       throw error;
     }
   },
@@ -45,21 +53,30 @@ module.exports = {
   async sendToSegment(segment, title, message, data = {}) {
     try {
       const notification = {
-        app_id: ONESIGNAL_APP_ID,
-        contents: { en: message },
-        headings: { en: title },
-        data: data,
+        ...createBasicNotification(title, message, data),
         filters: [
-          {"field": "tag", "key": "user_type", "relation": "=", "value": segment.toLowerCase()}
+          {
+            field: "tag",
+            key: "user_type",
+            relation: "=",
+            value: segment.toLowerCase()
+          }
         ]
       };
 
       console.log('Sending segment notification:', JSON.stringify(notification));
-      const response = await client.createNotification(notification);
-      console.log('OneSignal Response:', JSON.stringify(response));
-      return response;
+      
+      const response = await axios.post(ONESIGNAL_API_URL, notification, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${ONESIGNAL_REST_API_KEY}`
+        }
+      });
+
+      console.log('OneSignal Response:', JSON.stringify(response.data));
+      return response.data;
     } catch (error) {
-      console.error('OneSignal Error:', error);
+      console.error('OneSignal Error:', error.response?.data || error.message);
       throw error;
     }
   },
