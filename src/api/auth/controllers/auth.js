@@ -488,12 +488,24 @@ module.exports = {
       });
 
       // Send push notification to the segment
-      let pushStatus = 'sent';
+      let pushStatus = 'pending';
+      let pushResult = null;
       try {
-        const pushResult = await strapi.service('api::notification.onesignal').sendToSegment(segment, title, message);
-        if (!pushResult) {
-          pushStatus = 'failed';
-          console.log('No push notifications were sent - no valid recipients found');
+        // Get all player IDs for users in this segment who have them
+        const playerIds = users
+          .filter(user => user.onesignal_player_id)
+          .map(user => user.onesignal_player_id);
+
+        if (playerIds.length > 0) {
+          // Send to specific player IDs
+          pushResult = await strapi.service('api::notification.onesignal').sendToUsers(playerIds, title, message);
+          pushStatus = pushResult ? 'sent' : 'failed';
+          console.log(`Push notification sent to ${playerIds.length} devices`);
+        } else {
+          // Try sending to segment as fallback
+          pushResult = await strapi.service('api::notification.onesignal').sendToSegment(segment, title, message);
+          pushStatus = pushResult ? 'sent' : 'failed';
+          console.log('Push notification sent to segment');
         }
       } catch (pushError) {
         pushStatus = 'failed';
@@ -524,10 +536,12 @@ module.exports = {
         success: true,
         message: `Notification sent successfully to ${successfulSends} out of ${users.length} ${segment}(s)`,
         push_notification_status: pushStatus,
+        push_notification_result: pushResult,
         recipients: {
           total: users.length,
-          successful: successfulSends,
-          failed: users.length - successfulSends
+          successful_emails: successfulSends,
+          failed_emails: users.length - successfulSends,
+          users_with_player_ids: users.filter(user => user.onesignal_player_id).length
         }
       });
 
