@@ -806,6 +806,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
     otp: Attribute.String;
     otpExpiry: Attribute.DateTime;
     onesignal_player_id: Attribute.String;
+    subscriptions: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::subscription.subscription'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -1275,6 +1280,47 @@ export interface ApiQualificationQualification extends Schema.CollectionType {
   };
 }
 
+export interface ApiSubscriptionSubscription extends Schema.CollectionType {
+  collectionName: 'subscriptions';
+  info: {
+    singularName: 'subscription';
+    pluralName: 'subscriptions';
+    displayName: 'Subscription';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    user: Attribute.Relation<
+      'api::subscription.subscription',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    startDate: Attribute.DateTime & Attribute.Required;
+    endDate: Attribute.DateTime & Attribute.Required;
+    plan: Attribute.Enumeration<['annual', 'biannual', 'trial']> &
+      Attribute.Required;
+    amount: Attribute.Decimal & Attribute.Required;
+    status: Attribute.Enumeration<['active', 'expired']> & Attribute.Required;
+    paymentReference: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::subscription.subscription',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::subscription.subscription',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -1305,6 +1351,7 @@ declare module '@strapi/types' {
       'api::payment.payment': ApiPaymentPayment;
       'api::pharmacy.pharmacy': ApiPharmacyPharmacy;
       'api::qualification.qualification': ApiQualificationQualification;
+      'api::subscription.subscription': ApiSubscriptionSubscription;
     }
   }
 }

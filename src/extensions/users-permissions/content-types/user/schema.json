@@ -138,6 +138,12 @@
     "onesignal_player_id": {
       "type": "string",
       "description": "OneSignal Player ID for push notifications"
+    },
+    "subscriptions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::subscription.subscription",
+      "mappedBy": "user"
     }
   }
 }
