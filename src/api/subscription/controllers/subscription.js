@@ -65,15 +65,16 @@ module.exports = {
 
   async verifyPayment(ctx) {
     try {
-      const { reference, userId } = ctx.request.body;
-      console.log('Verifying payment:', { reference, userId }); // Debug log
+      const { reference, userId, plan } = ctx.request.body;
+      console.log('Verifying payment:', { reference, userId, plan });
 
       if (!reference || !userId) {
         return { success: false, message: 'Reference and userId are required' };
       }
 
-      const secretKey = process.env.PAYSTACK_SECRET_KEY;
-      console.log('Using secret key:', secretKey); // Debug log (remove in production)
+      // Hardcoded secret key for testing
+      const secretKey = 'sk_test_8aec9a304d365b92c61ef69e725dc50835b821a8';
+      console.log('Using secret key:', secretKey);
 
       const verificationResult = await new Promise((resolve, reject) => {
         const options = {
@@ -82,9 +83,16 @@ module.exports = {
           path: `/transaction/verify/${reference}`,
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${secretKey}`,
+            'Authorization': `Bearer ${secretKey}`,
+            'Content-Type': 'application/json'
           },
         };
+
+        console.log('Making verification request with options:', {
+          path: options.path,
+          method: options.method,
+          headers: options.headers
+        });
 
         const req = https.request(options, (res) => {
           let data = '';
@@ -96,54 +104,51 @@ module.exports = {
           res.on('end', () => {
             try {
               const response = JSON.parse(data);
-              console.log('Paystack response:', response); // Debug log
+              console.log('Paystack verification response:', response);
               resolve(response);
             } catch (error) {
-              console.error('Parse error:', error); // Debug log
+              console.error('Parse error:', error);
               reject(error);
             }
           });
         });
 
         req.on('error', (error) => {
-          console.error('Request error:', error); // Debug log
+          console.error('Request error:', error);
           reject(error);
         });
 
         req.end();
       });
 
-      if (verificationResult.status && verificationResult.data.status === 'success') {
-        // Create subscription
+      if (verificationResult.status && verificationResult.data?.status === 'success') {
         const subscription = await strapi.entityService.create('api::subscription.subscription', {
           data: {
-            user: userId, // Use the provided userId
+            user: userId,
             startDate: new Date(),
-            endDate: new Date(Date.now() + (verificationResult.data.metadata.plan === 'annual' ? 31536000000 : 15768000000)),
-            plan: verificationResult.data.metadata.plan,
+            endDate: new Date(Date.now() + (plan === 'annual' ? 31536000000 : 15768000000)),
+            plan: plan,
             amount: verificationResult.data.amount / 100,
             status: 'active',
             paymentReference: reference,
-            publishedAt: new Date(), // Add this to make it visible in the admin panel
+            publishedAt: new Date(),
           },
         });
 
-        console.log('Subscription created:', subscription); // Debug log
         return { success: true, subscription };
       } else {
-        console.error('Payment verification failed:', verificationResult); // Debug log
-        return { 
-          success: false, 
+        console.error('Payment verification failed:', verificationResult);
+        return {
+          success: false,
           message: 'Payment verification failed',
-          details: verificationResult 
+          details: verificationResult
         };
       }
     } catch (error) {
-      console.error('Verification error:', error); // Debug log
-      return { 
-        success: false, 
-        message: 'Payment verification failed: ' + error.message,
-        error: error 
+      console.error('Verification error:', error);
+      return {
+        success: false,
+        message: 'Payment verification failed: ' + error.message
       };
     }
   },
