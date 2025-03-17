@@ -64,56 +64,66 @@ module.exports = {
   },
 
   async verifyPayment(ctx) {
-    const { reference } = ctx.request.body;
-    const secretKey = process.env.PAYSTACK_SECRET_KEY;
+    try {
+      const { reference } = ctx.request.body;
+      const secretKey = process.env.PAYSTACK_SECRET_KEY;
 
-    return new Promise((resolve) => {
-      const options = {
-        hostname: 'api.paystack.co',
-        port: 443,
-        path: `/transaction/verify/${reference}`,
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${secretKey}`,
-        },
-      };
+      const verificationResult = await new Promise((resolve, reject) => {
+        const options = {
+          hostname: 'api.paystack.co',
+          port: 443,
+          path: `/transaction/verify/${reference}`,
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${secretKey}`,
+          },
+        };
 
-      const req = https.request(options, async (res) => {
-        let data = '';
+        const req = https.request(options, (res) => {
+          let data = '';
 
-        res.on('data', (chunk) => {
-          data += chunk;
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+
+          res.on('end', () => {
+            try {
+              const response = JSON.parse(data);
+              resolve(response);
+            } catch (error) {
+              reject(error);
+            }
+          });
         });
 
-        res.on('end', async () => {
-          const response = JSON.parse(data);
-          
-          if (response.status && response.data.status === 'success') {
-            // Create or update subscription
-            const subscription = await strapi.entityService.create('api::subscription.subscription', {
-              data: {
-                user: ctx.state.user.id,
-                startDate: new Date(),
-                endDate: new Date().setMonth(response.data.metadata.plan === 'annual' ? 12 : 6),
-                plan: response.data.metadata.plan,
-                amount: response.data.amount / 100,
-                status: 'active',
-                paymentReference: reference,
-              },
-            });
-
-            ctx.send({ success: true, subscription });
-          } else {
-            ctx.send({ success: false, message: 'Payment verification failed' });
-          }
+        req.on('error', (error) => {
+          reject(error);
         });
+
+        req.end();
       });
 
-      req.on('error', (error) => {
-        ctx.send({ success: false, message: error.message });
-      });
+      if (verificationResult.status && verificationResult.data.status === 'success') {
+        // Create subscription
+        const subscription = await strapi.entityService.create('api::subscription.subscription', {
+          data: {
+            user: ctx.state.user.id,
+            startDate: new Date(),
+            endDate: new Date(Date.now() + (verificationResult.data.metadata.plan === 'annual' ? 31536000000 : 15768000000)), // 12 or 6 months in milliseconds
+            plan: verificationResult.data.metadata.plan,
+            amount: verificationResult.data.amount / 100,
+            status: 'active',
+            paymentReference: reference,
+          },
+        });
 
-      req.end();
-    });
+        return { success: true, subscription };
+      } else {
+        return { success: false, message: 'Payment verification failed' };
+      }
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      return ctx.badRequest('Payment verification failed: ' + error.message);
+    }
   },
 };
