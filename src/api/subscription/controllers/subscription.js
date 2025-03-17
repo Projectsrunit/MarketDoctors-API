@@ -65,8 +65,15 @@ module.exports = {
 
   async verifyPayment(ctx) {
     try {
-      const { reference } = ctx.request.body;
+      const { reference, userId } = ctx.request.body;
+      console.log('Verifying payment:', { reference, userId }); // Debug log
+
+      if (!reference || !userId) {
+        return { success: false, message: 'Reference and userId are required' };
+      }
+
       const secretKey = process.env.PAYSTACK_SECRET_KEY;
+      console.log('Using secret key:', secretKey); // Debug log (remove in production)
 
       const verificationResult = await new Promise((resolve, reject) => {
         const options = {
@@ -89,14 +96,17 @@ module.exports = {
           res.on('end', () => {
             try {
               const response = JSON.parse(data);
+              console.log('Paystack response:', response); // Debug log
               resolve(response);
             } catch (error) {
+              console.error('Parse error:', error); // Debug log
               reject(error);
             }
           });
         });
 
         req.on('error', (error) => {
+          console.error('Request error:', error); // Debug log
           reject(error);
         });
 
@@ -107,23 +117,34 @@ module.exports = {
         // Create subscription
         const subscription = await strapi.entityService.create('api::subscription.subscription', {
           data: {
-            user: ctx.state.user.id,
+            user: userId, // Use the provided userId
             startDate: new Date(),
-            endDate: new Date(Date.now() + (verificationResult.data.metadata.plan === 'annual' ? 31536000000 : 15768000000)), // 12 or 6 months in milliseconds
+            endDate: new Date(Date.now() + (verificationResult.data.metadata.plan === 'annual' ? 31536000000 : 15768000000)),
             plan: verificationResult.data.metadata.plan,
             amount: verificationResult.data.amount / 100,
             status: 'active',
             paymentReference: reference,
+            publishedAt: new Date(), // Add this to make it visible in the admin panel
           },
         });
 
+        console.log('Subscription created:', subscription); // Debug log
         return { success: true, subscription };
       } else {
-        return { success: false, message: 'Payment verification failed' };
+        console.error('Payment verification failed:', verificationResult); // Debug log
+        return { 
+          success: false, 
+          message: 'Payment verification failed',
+          details: verificationResult 
+        };
       }
     } catch (error) {
-      console.error('Payment verification error:', error);
-      return ctx.badRequest('Payment verification failed: ' + error.message);
+      console.error('Verification error:', error); // Debug log
+      return { 
+        success: false, 
+        message: 'Payment verification failed: ' + error.message,
+        error: error 
+      };
     }
   },
 };
